@@ -16,6 +16,17 @@ public class StockOperator extends User {
     @OneToMany(mappedBy = "stockOperator")
     private Set<Game> games = new LinkedHashSet<>();
 
+    public StockOperator() {}
+
+    public StockOperator(String username, String password, String company) {
+        super(username, password);
+        this.company = company;
+    }
+
+    public StockOperator(String company) {
+        this.company = company;
+    }
+
     public String getCompany() {
         return company;
     }
@@ -30,5 +41,13 @@ public class StockOperator extends User {
 
     public void setGames(Set<Game> games) {
         this.games = games;
+    }
+
+    @Override
+    public String toString() {
+        return "StockOperator{" +
+               "company='" + company + '\'' +
+               ", games=" + games +
+               '}';
     }
 }

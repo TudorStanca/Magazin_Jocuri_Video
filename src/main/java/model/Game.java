@@ -38,6 +38,23 @@ public class Game extends EntityId<Long> {
     @OneToMany(mappedBy = "game")
     private Set<Review> reviews = new LinkedHashSet<>();
 
+    public Game() {}
+
+    public Game(String name, String genre, String platform, BigDecimal price, StockOperator stockOperator) {
+        this.name = name;
+        this.genre = genre;
+        this.platform = platform;
+        this.price = price;
+        this.stockOperator = stockOperator;
+    }
+
+    public Game(String name, String genre, String platform, BigDecimal price) {
+        this.name = name;
+        this.genre = genre;
+        this.platform = platform;
+        this.price = price;
+    }
+
     public String getName() {
         return name;
     }
@@ -84,5 +101,17 @@ public class Game extends EntityId<Long> {
 
     public void setReviews(Set<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    @Override
+    public String toString() {
+        return "Game{" +
+               "name='" + name + '\'' +
+               ", genre='" + genre + '\'' +
+               ", platform='" + platform + '\'' +
+               ", price=" + price +
+               ", stockOperator=" + stockOperator +
+               ", reviews=" + reviews +
+               '}';
     }
 }

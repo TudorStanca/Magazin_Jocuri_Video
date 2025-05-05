@@ -19,6 +19,13 @@ public class CartId implements Serializable {
     @Column(name = "game_id", nullable = false)
     private Long gameId;
 
+    public CartId() {}
+
+    public CartId(@NotNull Long clientId, @NotNull Long gameId) {
+        this.clientId = clientId;
+        this.gameId = gameId;
+    }
+
     public Long getClientId() {
         return clientId;
     }
@@ -47,5 +54,13 @@ public class CartId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(gameId, clientId);
+    }
+
+    @Override
+    public String toString() {
+        return "CartId{" +
+               "clientId=" + clientId +
+               ", gameId=" + gameId +
+               '}';
     }
 }

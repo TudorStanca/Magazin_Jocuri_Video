@@ -23,6 +23,14 @@ public class OwnedGame implements Identifiable<OwnedGameId> {
     @Column(name = "nr_hours")
     private Integer nrHours;
 
+    public OwnedGame() {}
+
+    public OwnedGame(Client client, Game game) {
+        this.id = new OwnedGameId(client.getId(), game.getId());
+        this.client = client;
+        this.game = game;
+    }
+
     @Override
     public OwnedGameId getId() {
         return id;
@@ -37,6 +45,7 @@ public class OwnedGame implements Identifiable<OwnedGameId> {
     }
 
     public void setClient(Client client) {
+        this.id = new OwnedGameId(client.getId(), game.getId());
         this.client = client;
     }
 
@@ -45,6 +54,7 @@ public class OwnedGame implements Identifiable<OwnedGameId> {
     }
 
     public void setGame(Game game) {
+        this.id = new OwnedGameId(client.getId(), game.getId());
         this.game = game;
     }
 
@@ -54,5 +64,15 @@ public class OwnedGame implements Identifiable<OwnedGameId> {
 
     public void setNrHours(Integer nrHours) {
         this.nrHours = nrHours;
+    }
+
+    @Override
+    public String toString() {
+        return "OwnedGame{" +
+               "id=" + id +
+               ", client=" + client +
+               ", game=" + game +
+               ", nrHours=" + nrHours +
+               '}';
     }
 }

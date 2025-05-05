@@ -31,6 +31,23 @@ public class Client extends User {
     @OneToMany(mappedBy = "client")
     private Set<OwnedGame> ownedGames = new LinkedHashSet<>();
 
+    public Client() {}
+
+    public Client(String username, String password, String name, String cnp, String telephoneNumber, String address) {
+        super(username, password);
+        this.name = name;
+        this.cnp = cnp;
+        this.telephoneNumber = telephoneNumber;
+        this.address = address;
+    }
+
+    public Client(String name, String cnp, String telephoneNumber, String address) {
+        this.name = name;
+        this.cnp = cnp;
+        this.telephoneNumber = telephoneNumber;
+        this.address = address;
+    }
+
     public String getName() {
         return name;
     }
@@ -77,5 +94,17 @@ public class Client extends User {
 
     public void setOwnedGames(Set<OwnedGame> ownedGames) {
         this.ownedGames = ownedGames;
+    }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+               "name='" + name + '\'' +
+               ", cnp='" + cnp + '\'' +
+               ", telephoneNumber='" + telephoneNumber + '\'' +
+               ", address='" + address + '\'' +
+               ", carts=" + carts +
+               ", ownedGames=" + ownedGames +
+               '}';
     }
 }

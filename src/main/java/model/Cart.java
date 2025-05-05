@@ -25,6 +25,15 @@ public class Cart implements Identifiable<CartId> {
     @Column(name = "date", nullable = false)
     private Instant date;
 
+    public Cart() {}
+
+    public Cart(Client client, Game game, Instant date) {
+        this.id = new CartId(client.getId(), game.getId());
+        this.client = client;
+        this.game = game;
+        this.date = date;
+    }
+
     @Override
     public CartId getId() {
         return id;
@@ -39,6 +48,7 @@ public class Cart implements Identifiable<CartId> {
     }
 
     public void setClient(Client client) {
+        this.id = new CartId(client.getId(), game.getId());
         this.client = client;
     }
 
@@ -47,6 +57,7 @@ public class Cart implements Identifiable<CartId> {
     }
 
     public void setGame(Game game) {
+        this.id = new CartId(client.getId(), game.getId());
         this.game = game;
     }
 
@@ -56,5 +67,15 @@ public class Cart implements Identifiable<CartId> {
 
     public void setDate(Instant date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "Cart{" +
+               "id=" + id +
+               ", client=" + client +
+               ", game=" + game +
+               ", date=" + date +
+               '}';
     }
 }

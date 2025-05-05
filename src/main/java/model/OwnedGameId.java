@@ -19,6 +19,13 @@ public class OwnedGameId implements Serializable {
     @Column(name = "game_id", nullable = false)
     private Long gameId;
 
+    public OwnedGameId() {}
+
+    public OwnedGameId(@NotNull Long clientId, @NotNull Long gameId) {
+        this.clientId = clientId;
+        this.gameId = gameId;
+    }
+
     public Long getClientId() {
         return clientId;
     }
@@ -47,5 +54,13 @@ public class OwnedGameId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(gameId, clientId);
+    }
+
+    @Override
+    public String toString() {
+        return "OwnedGameId{" +
+               "clientId=" + clientId +
+               ", gameId=" + gameId +
+               '}';
     }
 }

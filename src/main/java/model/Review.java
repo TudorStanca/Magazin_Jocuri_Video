@@ -22,6 +22,19 @@ public class Review extends EntityId<Long> {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
+    public Review() {}
+
+    public Review(@NotNull StarRating stars, String description, Game game) {
+        this.stars = stars;
+        this.description = description;
+        this.game = game;
+    }
+
+    public Review(@NotNull StarRating stars, String description) {
+        this.stars = stars;
+        this.description = description;
+    }
+
     public StarRating getStars() {
         return stars;
     }
@@ -44,5 +57,14 @@ public class Review extends EntityId<Long> {
 
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    @Override
+    public String toString() {
+        return "Review{" +
+               "stars=" + stars +
+               ", description='" + description + '\'' +
+               ", game=" + game +
+               '}';
     }
 }

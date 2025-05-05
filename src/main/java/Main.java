@@ -1,16 +1,26 @@
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import model.User;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 public class Main {
     public static void main(String[] args) {
-        SessionFactory sessionFactory = HibernateUtils.getSessionFactory();
-        User u = new User("admin", "admin");
-        sessionFactory.inTransaction(session -> {
-            session.persist(u);
-        });
-        try (Session session = sessionFactory.openSession()) {
-            session.createQuery("from User", User.class).list().forEach(System.out::println);
+        EntityManagerFactory emf = JPAUtils.getEntityManagerFactory();
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            em.getTransaction().begin();
+            User user = new User("admin", "admin");
+            em.persist(user);
+            em.getTransaction().commit();
+
+            em.createQuery("from User", User.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+            JPAUtils.close();
         }
     }
 }
