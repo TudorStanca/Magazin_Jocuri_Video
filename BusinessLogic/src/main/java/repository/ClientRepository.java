@@ -1,10 +1,10 @@
-package repository.interfaces;
+package repository;
 
 import jakarta.persistence.EntityManager;
 import model.Client;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import repository.JPAUtils;
+import repository.interfaces.IClientRepository;
 
 import java.util.Optional;
 
@@ -15,14 +15,19 @@ public class ClientRepository implements IClientRepository {
     @Override
     public Optional<Client> findById(Long aLong) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return Optional.ofNullable(em.find(Client.class, aLong));
+            var client = em.find(Client.class, aLong);
+            if (client != null) {
+                client.getCarts().size();
+                client.getOwnedGames().size();
+            }
+            return Optional.ofNullable(client);
         }
     }
 
     @Override
     public Iterable<Client> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery("select c from Client c", Client.class).getResultList();
+            return em.createQuery("select distinct c from Client c left join fetch c.carts left join fetch c.ownedGames", Client.class).getResultList();
         }
     }
 
@@ -47,24 +52,20 @@ public class ClientRepository implements IClientRepository {
 
     @Override
     public Optional<Client> delete(Long aLong) {
-        Optional<Client> entity = findById(aLong);
-        entity.ifPresent(this::delete);
-        return entity;
-    }
-
-    @Override
-    public Optional<Client> delete(Client entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
-            em.remove(entity);
+            var entity = em.find(Client.class, aLong);
+            if (entity != null) {
+                em.remove(entity);
+            }
             em.getTransaction().commit();
-            return Optional.of(entity);
+            return Optional.ofNullable(entity);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            logger.debug("Error delete client {}", e.getMessage());
+            logger.debug("Error delete id client {}", e.getMessage());
             return Optional.empty();
         } finally {
             em.close();

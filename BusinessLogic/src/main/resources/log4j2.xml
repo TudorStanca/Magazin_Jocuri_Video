@@ -10,6 +10,9 @@
         </File>
     </Appenders>
     <Loggers>
+        <logger name="org.hibernate" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="ERROR"/>
+        <logger name="org.hibernate.type" level="ERROR"/>
         <Root level="trace">
             <AppenderRef ref="log"/>
             <AppenderRef ref="Console"/>

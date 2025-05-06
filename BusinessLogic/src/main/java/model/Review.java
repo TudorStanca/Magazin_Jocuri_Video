@@ -64,7 +64,6 @@ public class Review extends EntityId<Long> {
         return "Review{" +
                "stars=" + stars +
                ", description='" + description + '\'' +
-               ", game=" + game +
                '}';
     }
 }

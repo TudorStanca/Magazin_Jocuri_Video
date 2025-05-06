@@ -110,8 +110,6 @@ public class Game extends EntityId<Long> {
                ", genre='" + genre + '\'' +
                ", platform='" + platform + '\'' +
                ", price=" + price +
-               ", stockOperator=" + stockOperator +
-               ", reviews=" + reviews +
                '}';
     }
 }

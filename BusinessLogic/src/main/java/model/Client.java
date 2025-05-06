@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "clients")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Client extends User {
     @Size(max = 255)
     @Column(name = "name")
@@ -99,12 +100,10 @@ public class Client extends User {
     @Override
     public String toString() {
         return "Client{" +
-               "name='" + name + '\'' +
+               "address='" + address + '\'' +
+               ", name='" + name + '\'' +
                ", cnp='" + cnp + '\'' +
                ", telephoneNumber='" + telephoneNumber + '\'' +
-               ", address='" + address + '\'' +
-               ", carts=" + carts +
-               ", ownedGames=" + ownedGames +
                '}';
     }
 }

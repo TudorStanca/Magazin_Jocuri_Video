@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "stock_operators")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class StockOperator extends User {
     @Size(max = 255)
     @Column(name = "company")
@@ -47,7 +48,6 @@ public class StockOperator extends User {
     public String toString() {
         return "StockOperator{" +
                "company='" + company + '\'' +
-               ", games=" + games +
                '}';
     }
 }

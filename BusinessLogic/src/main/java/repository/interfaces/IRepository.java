@@ -15,7 +15,5 @@ public interface IRepository<ID extends Serializable, E extends Identifiable<ID>
 
     Optional<E> delete(ID id);
 
-    Optional<E> delete(E entity);
-
     Optional<E> update(E entity);
 }
