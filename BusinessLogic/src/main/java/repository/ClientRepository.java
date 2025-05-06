@@ -90,4 +90,17 @@ public class ClientRepository implements IClientRepository {
             em.close();
         }
     }
+
+    @Override
+    public Optional<Client> findByUsername(String username) {
+        try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
+            var result = em.createQuery("select c from Client c where c.username = :username", Client.class).setParameter("username", username).getResultList();
+            var client = result.isEmpty() ? null : result.getFirst();
+            if (client != null) {
+                client.getCarts().size();
+                client.getOwnedGames().size();
+            }
+            return Optional.ofNullable(client);
+        }
+    }
 }

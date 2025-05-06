@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:controller="ui.controllers.SignInController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="83.0" layoutY="39.0" prefHeight="230.0" prefWidth="196.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="50.0">
+         <children>
+            <Label text="Sign in" />
+            <TextField fx:id="username" promptText="Username" />
+            <PasswordField fx:id="password" promptText="Password" />
+            <Button onAction="#handleSignIn" mnemonicParsing="false" text="Sign In" />
+            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="196.0">
+               <children>
+                  <Label prefHeight="30.0" text="Don't have an account?" />
+                  <Hyperlink onAction="#handleSignUpHyperlink" prefHeight="30.0" text="Sign Up" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

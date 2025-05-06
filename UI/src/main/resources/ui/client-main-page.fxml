@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:controller="ui.controllers.ClientMainPageController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button onAction="#handleLogout" layoutX="273.0" layoutY="561.0" mnemonicParsing="false" text="Logout" />
+      <Label fx:id="usernameLabel" layoutX="14.0" layoutY="14.0" text="Label" />
+   </children>
+</AnchorPane>
