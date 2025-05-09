@@ -3,7 +3,9 @@ package ui;
 public enum View {
     SIGN_IN("sign-in.fxml", "Sign In"),
     SIGN_UP("sign-up.fxml", "Sign Up"),
-    CLIENT_MAIN("client-main-page.fxml", "Main");
+    CLIENT_MAIN("client-main-page.fxml", "Main"),
+    STOCK_OPERATOR_MAIN("stock-operator-main-page.fxml", "Main"),
+    ADMIN_MAIN("admin-main-page.fxml", "Main");
 
     public final String path;
     public final String title;

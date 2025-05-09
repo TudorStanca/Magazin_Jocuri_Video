@@ -22,33 +22,33 @@ public class ProtoMappers {
     }
 
     public static ClientProto toProto(ClientDTO client) {
-        List<CartProto> carts = client.carts().stream()
+        List<CartProto> carts = client.getCarts().stream()
                 .map(ProtoMappers::toProto)
                 .toList();
-        List<OwnedGameProto> ownedGames = client.ownedGames().stream()
+        List<OwnedGameProto> ownedGames = client.getOwnedGames().stream()
                 .map(ProtoMappers::toProto)
                 .toList();
 
         return ClientProto.newBuilder()
-                .setId(client.id())
-                .setUsername(client.username())
-                .setName(client.name())
-                .setCnp(client.cnp())
-                .setTelephoneNumber(client.telephoneNumber())
-                .setAddress(client.address())
+                .setId(client.getId())
+                .setUsername(client.getUsername())
+                .setName(client.getName())
+                .setCnp(client.getCnp())
+                .setTelephoneNumber(client.getTelephoneNumber())
+                .setAddress(client.getAddress())
                 .addAllCarts(carts)
                 .addAllOwnedGames(ownedGames)
                 .build();
     }
 
     public static StockOperatorProto toProto(StockOperatorDTO stockOperator) {
-        List<GameProto> games = stockOperator.games().stream()
+        List<GameProto> games = stockOperator.getGames().stream()
                 .map(ProtoMappers::toProto)
                 .toList();
         return StockOperatorProto.newBuilder()
-                .setId(stockOperator.id())
-                .setUsername(stockOperator.username())
-                .setCompany(stockOperator.company())
+                .setId(stockOperator.getId())
+                .setUsername(stockOperator.getUsername())
+                .setCompany(stockOperator.getCompany())
                 .addAllGames(games)
                 .build();
     }
@@ -86,6 +86,13 @@ public class ProtoMappers {
                 .setId(review.id())
                 .setStars(ReviewProto.StarRating.valueOf(review.starRating().toString()))
                 .setDescription(review.description())
+                .build();
+    }
+
+    public static AdminProto toProto(AdminDTO admin) {
+        return AdminProto.newBuilder()
+                .setId(admin.getId())
+                .setUsername(admin.getUsername())
                 .build();
     }
 
@@ -145,6 +152,15 @@ public class ProtoMappers {
                 new byte[]{},
                 proto.getCompany(),
                 proto.getGamesList().stream().map(ProtoMappers::fromProto).toList()
+        );
+    }
+
+    public static AdminDTO fromProto(AdminProto proto) {
+        return new AdminDTO(
+                proto.getId(),
+                proto.getUsername(),
+                new byte[]{},
+                new byte[]{}
         );
     }
 }

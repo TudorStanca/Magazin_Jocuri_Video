@@ -77,4 +77,13 @@ public class DTOMapper {
                 games
         );
     }
+
+    public static AdminDTO toDTO(Admin entity) {
+        return new AdminDTO(
+                entity.getId(),
+                entity.getUsername(),
+                entity.getPassword(),
+                entity.getSalt()
+        );
+    }
 }

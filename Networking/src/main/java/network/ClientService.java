@@ -5,7 +5,9 @@ import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import model.SignInType;
 import model.dto.ClientDTO;
+import model.dto.UserDTO;
 import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,17 +73,24 @@ public class ClientService implements IServices {
     }
 
     @Override
-    public ClientDTO signIn(String username, String password) throws ClientSideException {
+    public UserDTO signIn(String username, String password, SignInType signInType) throws ClientSideException {
         try {
             createConnection();
             SignInRequest signInRequest = SignInRequest.newBuilder()
                     .setUsername(username)
                     .setPassword(password)
+                    .setType(SignInRequest.SignInType.valueOf(signInType.toString()))
                     .build();
-            SignInResponse loginResponse = blockingStub.signIn(signInRequest);
-            ClientDTO user = ProtoMappers.fromProto(loginResponse.getClient());
+            SignInResponse signInResponse = blockingStub.signIn(signInRequest);
+            UserDTO user;
+            switch (signInType){
+                case Client -> user = ProtoMappers.fromProto(signInResponse.getClient());
+                case StockOperator -> user = ProtoMappers.fromProto(signInResponse.getStockOperator());
+                case Admin -> user = ProtoMappers.fromProto(signInResponse.getAdmin());
+                default -> throw new ClientSideException("Invalid signInType");
+            }
 
-            subscribeClient(user.id());
+            subscribeClient(user.getId());
 
             return user;
         } catch (StatusRuntimeException ex) {

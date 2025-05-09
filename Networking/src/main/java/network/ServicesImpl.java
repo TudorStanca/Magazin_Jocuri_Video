@@ -3,7 +3,11 @@ package network;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import model.SignInType;
+import model.dto.AdminDTO;
 import model.dto.ClientDTO;
+import model.dto.StockOperatorDTO;
+import model.dto.UserDTO;
 import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,15 +65,22 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     public void signIn(SignInRequest request, StreamObserver<SignInResponse> responseObserver) {
         try {
             logger.debug("Client {} attempting to log in", request);
-            ClientDTO user = service.signIn(request.getUsername(), request.getPassword());
+            SignInType type = SignInType.valueOf(request.getType().toString());
+            UserDTO user = service.signIn(request.getUsername(), request.getPassword(), type);
 
-            if (loggedClients.containsKey(user.id())) {
+            if (loggedClients.containsKey(user.getId())) {
                 throw new ServerSideException("User already logged in");
             }
 
-            SignInResponse response = SignInResponse.newBuilder()
-                    .setClient(ProtoMappers.toProto(user))
-                    .build();
+            var responseBuilder = SignInResponse.newBuilder();
+            switch (type) {
+                case Client -> responseBuilder.setClient(ProtoMappers.toProto((ClientDTO) user));
+                case StockOperator -> responseBuilder.setStockOperator(ProtoMappers.toProto((StockOperatorDTO) user));
+                case Admin -> responseBuilder.setAdmin(ProtoMappers.toProto((AdminDTO) user));
+                default -> throw new ServerSideException("Invalid type");
+            }
+            SignInResponse response = responseBuilder.build();
+
             logger.debug("Client logged in: {}", response);
 
             responseObserver.onNext(response);

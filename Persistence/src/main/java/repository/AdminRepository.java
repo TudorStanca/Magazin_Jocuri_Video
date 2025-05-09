@@ -1,40 +1,40 @@
 package repository;
 
 import jakarta.persistence.EntityManager;
+import model.Admin;
 import model.Client;
-import model.StockOperator;
-import model.dto.StockOperatorDTO;
+import model.dto.AdminDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import repository.interfaces.IStockOperatorRepository;
+import repository.interfaces.IAdminRepository;
 import repository.utils.DTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class StockOperatorRepository implements IStockOperatorRepository {
-    private static final Logger logger = LogManager.getLogger(StockOperatorRepository.class);
+public class AdminRepository implements IAdminRepository {
+
+    private static final Logger logger = LogManager.getLogger(AdminRepository.class);
 
     @Override
-    public Optional<StockOperatorDTO> findById(Long aLong) {
+    public Optional<AdminDTO> findById(Long aLong) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            var entity = em.find(StockOperator.class, aLong);
+            var entity = em.find(Admin.class, aLong);
             return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }
     }
 
     @Override
-    public Iterable<StockOperatorDTO> findAll() {
+    public Iterable<AdminDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery("select so from StockOperator so", StockOperator.class).getResultList().stream()
+            return em.createQuery("select a from Admin a", Admin.class).getResultList().stream()
                     .map(DTOMapper::toDTO)
                     .toList();
         }
     }
 
     @Override
-    public Optional<StockOperatorDTO> save(StockOperator entity) {
+    public Optional<AdminDTO> save(Admin entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
@@ -45,7 +45,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            logger.debug("Error save stock operator {}", e.getMessage());
+            logger.debug("Error save admin {}", e.getMessage());
             return Optional.empty();
         } finally {
             em.close();
@@ -53,11 +53,11 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     }
 
     @Override
-    public Optional<StockOperatorDTO> delete(Long aLong) {
+    public Optional<AdminDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
-            var entity = em.find(StockOperator.class, aLong);
+            var entity = em.find(Admin.class, aLong);
             if (entity != null) {
                 em.remove(entity);
             }
@@ -67,7 +67,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            logger.debug("Error delete stock operator {}", e.getMessage());
+            logger.debug("Error delete id admin {}", e.getMessage());
             return Optional.empty();
         } finally {
             em.close();
@@ -75,18 +75,18 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     }
 
     @Override
-    public Optional<StockOperatorDTO> update(StockOperator entity) {
+    public Optional<AdminDTO> update(Admin entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
-            var updatedEntity = em.merge(entity);
+            Admin updatedEntity = em.merge(entity);
             em.getTransaction().commit();
             return Optional.of(DTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            logger.debug("Error update stock operator {}", e.getMessage());
+            logger.debug("Error update admin {}", e.getMessage());
             return Optional.empty();
         } finally {
             em.close();
@@ -94,9 +94,9 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     }
 
     @Override
-    public Optional<StockOperatorDTO> findByUsername(String username) {
+    public Optional<AdminDTO> findByUsername(String username) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            var result = em.createQuery("select so from StockOperator so where so.username = :username", StockOperator.class).setParameter("username", username).getResultList();
+            var result = em.createQuery("select a from Admin a where a.username = :username", Admin.class).setParameter("username", username).getResultList();
             var entity = result.isEmpty() ? null : result.getFirst();
             return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }

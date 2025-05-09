@@ -6,9 +6,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import model.SignInType;
+import model.dto.AdminDTO;
 import model.dto.ClientDTO;
+import model.dto.StockOperatorDTO;
+import model.dto.UserDTO;
 import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +35,11 @@ public class SignInController implements IController {
     @FXML
     private PasswordField password;
 
+    @FXML
+    private ToggleButton stockOperator, admin;
+
+    private ToggleGroup loginToggleGroup = new ToggleGroup();
+
     private static Logger logger = LogManager.getLogger(SignInController.class);
 
     public SignInController(IServices service, Stage stage) {
@@ -37,19 +48,59 @@ public class SignInController implements IController {
     }
 
     @FXML
+    private void initialize() {
+        stockOperator.setToggleGroup(loginToggleGroup);
+        admin.setToggleGroup(loginToggleGroup);
+
+        stockOperator.setOnAction(event -> {
+            if(stockOperator.isSelected()) {
+                loginToggleGroup.selectToggle(stockOperator);
+            } else {
+                loginToggleGroup.selectToggle(null);
+            }
+        });
+
+        admin.setOnAction(event -> {
+            if(admin.isSelected()) {
+                loginToggleGroup.selectToggle(admin);
+            } else {
+                loginToggleGroup.selectToggle(null);
+            }
+        });
+    }
+
+    @FXML
     private void handleSignIn(ActionEvent event) {
         try {
-            ClientDTO user = service.signIn(username.getText(), password.getText());
+            FXMLLoader fxmlLoader;
+            String username = this.username.getText();
+            String password = this.password.getText();
+            if(loginToggleGroup.getSelectedToggle() != null) {
+                if(loginToggleGroup.getSelectedToggle() == stockOperator) {
+                    var user = service.signIn(username, password, SignInType.StockOperator);
 
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.CLIENT_MAIN.path));
-            fxmlLoader.setControllerFactory(c -> new ClientMainPageController(service, stage, user));
+                    fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.STOCK_OPERATOR_MAIN.path));
+                    fxmlLoader.setControllerFactory(c -> new StockOperatorMainPageController(service, stage, (StockOperatorDTO) user));
+                    stage.setTitle(View.STOCK_OPERATOR_MAIN.title);
+                } else {
+                    var user = service.signIn(username, password, SignInType.Admin);
 
+                    fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.ADMIN_MAIN.path));
+                    fxmlLoader.setControllerFactory(c -> new AdminPageMainController(service, stage, (AdminDTO) user));
+                    stage.setTitle(View.ADMIN_MAIN.title);
+                }
+            } else {
+                var user = service.signIn(username, password, SignInType.Client);
+
+                fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.CLIENT_MAIN.path));
+                fxmlLoader.setControllerFactory(c -> new ClientMainPageController(service, stage, (ClientDTO) user));
+                stage.setTitle(View.CLIENT_MAIN.title);
+            }
             Pane root = fxmlLoader.load();
             stage.setScene(new Scene(root));
 
             root.requestFocus();
             stage.setResizable(false);
-            stage.setTitle(View.CLIENT_MAIN.title);
 
             ObserverManager.getInstance().setCurrentController(fxmlLoader.getController());
 

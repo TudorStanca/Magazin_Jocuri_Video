@@ -3,14 +3,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:controller="ui.controllers.SignInController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.SignInController">
    <children>
-      <VBox alignment="TOP_CENTER" layoutX="83.0" layoutY="39.0" prefHeight="230.0" prefWidth="196.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="50.0">
+      <VBox alignment="TOP_CENTER" layoutX="83.0" layoutY="39.0" prefHeight="230.0" prefWidth="220.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="175.0" AnchorPane.topAnchor="50.0">
          <children>
             <Label text="Sign in" />
-            <TextField fx:id="username" promptText="Username" />
+            <TextField fx:id="username" prefWidth="200.0" promptText="Username" />
             <PasswordField fx:id="password" promptText="Password" />
-            <Button onAction="#handleSignIn" mnemonicParsing="false" text="Sign In" />
+            <HBox alignment="TOP_CENTER" prefHeight="0.0" prefWidth="200.0" spacing="25.0" stylesheets="@../css/togge-buttons.css">
+               <children>
+                  <ToggleButton fx:id="stockOperator" mnemonicParsing="false" prefWidth="100.0" text="Stock Operator" />
+                  <ToggleButton fx:id="admin" mnemonicParsing="false" prefWidth="100.0" text="Admin" />
+               </children></HBox>
+            <Button mnemonicParsing="false" onAction="#handleSignIn" text="Sign In" />
             <HBox alignment="CENTER" prefHeight="0.0" prefWidth="196.0">
                <children>
                   <Label prefHeight="30.0" text="Don't have an account?" />

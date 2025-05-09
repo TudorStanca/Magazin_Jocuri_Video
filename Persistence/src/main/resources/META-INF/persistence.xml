@@ -5,6 +5,7 @@
         <class>model.User</class>
         <class>model.Client</class>
         <class>model.StockOperator</class>
+        <class>model.Admin</class>
         <class>model.Game</class>
         <class>model.Review</class>
         <class>model.OwnedGame</class>

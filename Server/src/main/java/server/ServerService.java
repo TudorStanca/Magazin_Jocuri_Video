@@ -1,7 +1,9 @@
 package server;
 
 import model.Client;
+import model.SignInType;
 import model.dto.ClientDTO;
+import model.dto.UserDTO;
 import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,14 +18,16 @@ public class ServerService implements IServices {
 
     private final IClientRepository clientRepository;
     private final IStockOperatorRepository stockOperatorRepository;
+    private final IAdminRepository adminRepository;
     private final IGameRepository gameRepository;
     private final IReviewRepository reviewRepository;
     private final ICartRepository cartRepository;
     private final IOwnedGamesRepository ownedGamesRepository;
 
-    public ServerService(IClientRepository client, IStockOperatorRepository stock, IGameRepository game, IReviewRepository review, ICartRepository cart, IOwnedGamesRepository ownedGame) {
+    public ServerService(IClientRepository client, IStockOperatorRepository stock, IAdminRepository admin, IGameRepository game, IReviewRepository review, ICartRepository cart, IOwnedGamesRepository ownedGame) {
         this.clientRepository = client;
         this.stockOperatorRepository = stock;
+        this.adminRepository = admin;
         this.gameRepository = game;
         this.reviewRepository = review;
         this.cartRepository = cart;
@@ -31,16 +35,22 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public synchronized ClientDTO signIn(String username, String password) throws ServerSideException {
-        Optional<ClientDTO> client = clientRepository.findByUsername(username);
+    public synchronized UserDTO signIn(String username, String password, SignInType signInType) throws ServerSideException {
+        Optional<UserDTO> user;
+        switch (signInType) {
+            case Client -> user = clientRepository.findByUsername(username).map(c -> (UserDTO) c);
+            case StockOperator -> user = stockOperatorRepository.findByUsername(username).map(c -> (UserDTO) c);
+            case Admin -> user = adminRepository.findByUsername(username).map(c -> (UserDTO) c);
+            default -> throw new ServerSideException("Invalid signInType");
+        }
 
-        if (client.isEmpty()) {
+        if (user.isEmpty()) {
             throw new ServerSideException("User not found");
-        } else if (!PasswordHashing.isExpectedPassword(password, client.get().password(), client.get().salt())) {
+        } else if (!PasswordHashing.isExpectedPassword(password, user.get().getPassword(), user.get().getSalt())) {
             throw new ServerSideException("Wrong password");
         }
 
-        return client.get();
+        return user.get();
     }
 
     @Override

@@ -1,0 +1,14 @@
+.toggle-button {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: #000;
+    -fx-background-radius: 5px;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #000;
+    -fx-text-fill: #e0e0e0;
+}
+
+.toggle-button:focused {
+    -fx-effect: none;
+}

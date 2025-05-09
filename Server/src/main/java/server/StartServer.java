@@ -3,11 +3,14 @@ package server;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
+import model.Admin;
+import model.StockOperator;
 import network.ServicesImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.*;
 import repository.interfaces.*;
+import server.utils.PasswordHashing;
 
 import java.io.File;
 import java.io.FileReader;
@@ -63,12 +66,13 @@ public class StartServer {
 
         IClientRepository client = new ClientRepository();
         IStockOperatorRepository stock = new StockOperatorRepository();
+        IAdminRepository admin = new AdminRepository();
         IGameRepository game = new GameRepository();
         IReviewRepository review = new ReviewRepository();
         ICartRepository cart = new CartRepository();
         IOwnedGamesRepository owned = new OwnedGameRepository();
 
-        ServerService service = new ServerService(client, stock, game, review, cart, owned);
+        ServerService service = new ServerService(client, stock, admin, game, review, cart, owned);
 
         int serverPort = defaultPort;
         try {

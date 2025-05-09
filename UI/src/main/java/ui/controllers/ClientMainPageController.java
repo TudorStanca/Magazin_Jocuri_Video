@@ -35,18 +35,18 @@ public class ClientMainPageController implements IController {
     @FXML
     private void initialize() {
         stage.setOnCloseRequest(event -> {
-            service.logout(user.id());
+            service.logout(user.getId());
             logger.debug("Closing application");
             System.exit(0);
         });
 
-        usernameLabel.setText(user.username());
+        usernameLabel.setText(user.getUsername());
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            service.logout(user.id());
+            service.logout(user.getId());
 
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.SIGN_IN.path));
             fxmlLoader.setControllerFactory(c -> new SignInController(service, stage));
