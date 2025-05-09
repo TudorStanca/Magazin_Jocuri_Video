@@ -2,9 +2,11 @@ package repository;
 
 import jakarta.persistence.EntityManager;
 import model.Game;
+import model.dto.GameDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.IGameRepository;
+import repository.utils.DTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
@@ -13,32 +15,30 @@ public class GameRepository implements IGameRepository {
     private static final Logger logger = LogManager.getLogger(GameRepository.class);
 
     @Override
-    public Optional<Game> findById(Long aLong) {
+    public Optional<GameDTO> findById(Long aLong) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var entity = em.find(Game.class, aLong);
-            if (entity != null) {
-                entity.getStockOperator().getCompany();
-                entity.getReviews().size();
-            }
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }
     }
 
     @Override
-    public Iterable<Game> findAll() {
+    public Iterable<GameDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery("select distinct g from Game g left join fetch g.reviews left join fetch g.stockOperator", Game.class).getResultList();
+            return em.createQuery("select g from Game g", Game.class).getResultList().stream()
+                    .map(DTOMapper::toDTO)
+                    .toList();
         }
     }
 
     @Override
-    public Optional<Game> save(Game entity) {
+    public Optional<GameDTO> save(Game entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-            return Optional.of(entity);
+            return Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -51,7 +51,7 @@ public class GameRepository implements IGameRepository {
     }
 
     @Override
-    public Optional<Game> delete(Long aLong) {
+    public Optional<GameDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
@@ -60,7 +60,7 @@ public class GameRepository implements IGameRepository {
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -73,13 +73,13 @@ public class GameRepository implements IGameRepository {
     }
 
     @Override
-    public Optional<Game> update(Game entity) {
+    public Optional<GameDTO> update(Game entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             var updatedEntity = em.merge(entity);
             em.getTransaction().commit();
-            return Optional.of(updatedEntity);
+            return Optional.of(DTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

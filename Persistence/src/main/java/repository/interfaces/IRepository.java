@@ -1,19 +1,20 @@
 package repository.interfaces;
 
 import model.Identifiable;
+import model.dto.RepositoryDTO;
 
 import java.io.Serializable;
 import java.util.Optional;
 
-public interface IRepository<ID extends Serializable, E extends Identifiable<ID>> {
+public interface IRepository<ID extends Serializable, E extends Identifiable<ID>, RET extends RepositoryDTO> {
 
-    Optional<E> findById(ID id);
+    Optional<RET> findById(ID id);
 
-    Iterable<E> findAll();
+    Iterable<RET> findAll();
 
-    Optional<E> save(E entity);
+    Optional<RET> save(E entity);
 
-    Optional<E> delete(ID id);
+    Optional<RET> delete(ID id);
 
-    Optional<E> update(E entity);
+    Optional<RET> update(E entity);
 }

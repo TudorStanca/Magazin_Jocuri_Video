@@ -3,43 +3,44 @@ package repository;
 import jakarta.persistence.EntityManager;
 import model.Cart;
 import model.CartId;
+import model.dto.CartDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.ICartRepository;
+import repository.utils.DTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CartRepository implements ICartRepository {
     private static final Logger logger = LogManager.getLogger(CartRepository.class);
 
     @Override
-    public Optional<Cart> findById(CartId cartId) {
+    public Optional<CartDTO> findById(CartId cartId) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var entity = em.find(Cart.class, cartId);
-            if (entity != null) {
-                entity.getClient().getName();
-                entity.getGame().getName();
-            }
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }
     }
 
     @Override
-    public Iterable<Cart> findAll() {
+    public Iterable<CartDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery("select c from Cart c left join fetch c.client left join fetch c.game", Cart.class).getResultList();
+            return em.createQuery("select c from Cart c", Cart.class).getResultList().stream()
+                    .map(DTOMapper::toDTO)
+                    .toList();
         }
     }
 
     @Override
-    public Optional<Cart> save(Cart entity) {
+    public Optional<CartDTO> save(Cart entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-            return Optional.of(entity);
+            return Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -52,7 +53,7 @@ public class CartRepository implements ICartRepository {
     }
 
     @Override
-    public Optional<Cart> delete(CartId cartId) {
+    public Optional<CartDTO> delete(CartId cartId) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
@@ -61,7 +62,7 @@ public class CartRepository implements ICartRepository {
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -74,13 +75,13 @@ public class CartRepository implements ICartRepository {
     }
 
     @Override
-    public Optional<Cart> update(Cart entity) {
+    public Optional<CartDTO> update(Cart entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             var updatedEntity = em.merge(entity);
             em.getTransaction().commit();
-            return Optional.of(updatedEntity);
+            return Optional.of(DTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

@@ -2,7 +2,7 @@ package model.dto;
 
 import java.util.List;
 
-public record StockOperatorDTO (Long id, String username, String password, String company, List<GameDTO> games) {
+public record StockOperatorDTO (Long id, String username, String password, String company, List<GameDTO> games) implements RepositoryDTO {
 
     @Override
     public String toString() {

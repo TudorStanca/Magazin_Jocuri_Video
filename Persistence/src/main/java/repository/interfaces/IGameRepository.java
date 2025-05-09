@@ -1,6 +1,7 @@
 package repository.interfaces;
 
 import model.Game;
+import model.dto.GameDTO;
 
-public interface IGameRepository extends IRepository<Long, Game>{
+public interface IGameRepository extends IRepository<Long, Game, GameDTO>{
 }

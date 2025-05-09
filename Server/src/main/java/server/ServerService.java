@@ -6,7 +6,6 @@ import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.*;
-import repository.utils.DTOMapper;
 import services.IServices;
 
 import java.util.Optional;
@@ -32,26 +31,26 @@ public class ServerService implements IServices {
 
     @Override
     public ClientDTO signIn(String username, String password) throws ServerSideException {
-        Optional<Client> client = clientRepository.findByUsername(username);
+        Optional<ClientDTO> client = clientRepository.findByUsername(username);
 
         if (client.isEmpty()) {
             throw new ServerSideException("User not found");
-        } else if (!client.get().getPassword().equals(password)) {
+        } else if (!client.get().password().equals(password)) {
             throw new ServerSideException("Wrong password");
         }
 
-        return DTOMapper.toDTO(client.get());
+        return client.get();
     }
 
     @Override
     public ClientDTO signUp(String username, String password, String name, String cnp, String telephone, String address) throws ServerSideException {
-        Optional<Client> client = clientRepository.save(new Client(username, password, name, cnp, telephone, address));
+        Optional<ClientDTO> client = clientRepository.save(new Client(username, password, name, cnp, telephone, address));
 
         if(client.isEmpty()) {
             throw new ServerSideException("User could not be created");
         }
 
-        return DTOMapper.toDTO(client.get());
+        return client.get();
     }
 
     @Override

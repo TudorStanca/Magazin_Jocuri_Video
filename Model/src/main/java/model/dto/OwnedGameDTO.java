@@ -1,6 +1,6 @@
 package model.dto;
 
-public record OwnedGameDTO(GameDTO game, Integer nrHours) {
+public record OwnedGameDTO(GameDTO game, Integer nrHours) implements RepositoryDTO {
 
     @Override
     public String toString() {

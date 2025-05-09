@@ -2,9 +2,11 @@ package repository;
 
 import jakarta.persistence.EntityManager;
 import model.Client;
+import model.dto.ClientDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.IClientRepository;
+import repository.utils.DTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
@@ -14,32 +16,30 @@ public class ClientRepository implements IClientRepository {
     private static final Logger logger = LogManager.getLogger(ClientRepository.class);
 
     @Override
-    public Optional<Client> findById(Long aLong) {
+    public Optional<ClientDTO> findById(Long aLong) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            var client = em.find(Client.class, aLong);
-            if (client != null) {
-                client.getCarts().size();
-                client.getOwnedGames().size();
-            }
-            return Optional.ofNullable(client);
+            var entity = em.find(Client.class, aLong);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }
     }
 
     @Override
-    public Iterable<Client> findAll() {
+    public Iterable<ClientDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery("select distinct c from Client c left join fetch c.carts left join fetch c.ownedGames", Client.class).getResultList();
+            return em.createQuery("select c from Client c", Client.class).getResultList().stream()
+                    .map(DTOMapper::toDTO)
+                    .toList();
         }
     }
 
     @Override
-    public Optional<Client> save(Client entity) {
+    public Optional<ClientDTO> save(Client entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-            return Optional.of(entity);
+            return Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -52,7 +52,7 @@ public class ClientRepository implements IClientRepository {
     }
 
     @Override
-    public Optional<Client> delete(Long aLong) {
+    public Optional<ClientDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
@@ -61,7 +61,7 @@ public class ClientRepository implements IClientRepository {
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -74,13 +74,13 @@ public class ClientRepository implements IClientRepository {
     }
 
     @Override
-    public Optional<Client> update(Client entity) {
+    public Optional<ClientDTO> update(Client entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
-            Client updatedClient = em.merge(entity);
+            Client updatedEntity = em.merge(entity);
             em.getTransaction().commit();
-            return Optional.of(updatedClient);
+            return Optional.of(DTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -93,15 +93,11 @@ public class ClientRepository implements IClientRepository {
     }
 
     @Override
-    public Optional<Client> findByUsername(String username) {
+    public Optional<ClientDTO> findByUsername(String username) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var result = em.createQuery("select c from Client c where c.username = :username", Client.class).setParameter("username", username).getResultList();
-            var client = result.isEmpty() ? null : result.getFirst();
-            if (client != null) {
-                client.getCarts().size();
-                client.getOwnedGames().size();
-            }
-            return Optional.ofNullable(client);
+            var entity = result.isEmpty() ? null : result.getFirst();
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }
     }
 }

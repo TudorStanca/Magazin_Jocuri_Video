@@ -2,42 +2,44 @@ package repository;
 
 import jakarta.persistence.EntityManager;
 import model.StockOperator;
+import model.dto.StockOperatorDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.IStockOperatorRepository;
+import repository.utils.DTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StockOperatorRepository implements IStockOperatorRepository {
     private static final Logger logger = LogManager.getLogger(StockOperatorRepository.class);
 
     @Override
-    public Optional<StockOperator> findById(Long aLong) {
+    public Optional<StockOperatorDTO> findById(Long aLong) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var entity = em.find(StockOperator.class, aLong);
-            if (entity != null) {
-                entity.getGames().size();
-            }
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         }
     }
 
     @Override
-    public Iterable<StockOperator> findAll() {
+    public Iterable<StockOperatorDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery("select distinct so from StockOperator so left join fetch so.games", StockOperator.class).getResultList();
+            return em.createQuery("select so from StockOperator so", StockOperator.class).getResultList().stream()
+                    .map(DTOMapper::toDTO)
+                    .toList();
         }
     }
 
     @Override
-    public Optional<StockOperator> save(StockOperator entity) {
+    public Optional<StockOperatorDTO> save(StockOperator entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-            return Optional.of(entity);
+            return Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -50,7 +52,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     }
 
     @Override
-    public Optional<StockOperator> delete(Long aLong) {
+    public Optional<StockOperatorDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
@@ -59,7 +61,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return Optional.ofNullable(entity);
+            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -72,13 +74,13 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     }
 
     @Override
-    public Optional<StockOperator> update(StockOperator entity) {
+    public Optional<StockOperatorDTO> update(StockOperator entity) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
             var updatedEntity = em.merge(entity);
             em.getTransaction().commit();
-            return Optional.of(updatedEntity);
+            return Optional.of(DTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
