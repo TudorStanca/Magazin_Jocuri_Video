@@ -32,7 +32,6 @@ public class ProtoMappers {
         return ClientProto.newBuilder()
                 .setId(client.id())
                 .setUsername(client.username())
-                .setPassword(client.password())
                 .setName(client.name())
                 .setCnp(client.cnp())
                 .setTelephoneNumber(client.telephoneNumber())
@@ -49,7 +48,6 @@ public class ProtoMappers {
         return StockOperatorProto.newBuilder()
                 .setId(stockOperator.id())
                 .setUsername(stockOperator.username())
-                .setPassword(stockOperator.password())
                 .setCompany(stockOperator.company())
                 .addAllGames(games)
                 .build();
@@ -95,7 +93,8 @@ public class ProtoMappers {
         return new ClientDTO(
                 proto.getId(),
                 proto.getUsername(),
-                proto.getPassword(),
+                new byte[]{},
+                new byte[]{},
                 proto.getName(),
                 proto.getCnp(),
                 proto.getTelephoneNumber(),
@@ -142,7 +141,8 @@ public class ProtoMappers {
         return new StockOperatorDTO(
                 proto.getId(),
                 proto.getUsername(),
-                proto.getPassword(),
+                new byte[]{},
+                new byte[]{},
                 proto.getCompany(),
                 proto.getGamesList().stream().map(ProtoMappers::fromProto).toList()
         );

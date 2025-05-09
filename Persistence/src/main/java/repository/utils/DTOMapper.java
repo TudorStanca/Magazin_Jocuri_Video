@@ -18,6 +18,7 @@ public class DTOMapper {
                 client.getId(),
                 client.getUsername(),
                 client.getPassword(),
+                client.getSalt(),
                 client.getName(),
                 client.getCnp(),
                 client.getTelephoneNumber(),
@@ -71,6 +72,7 @@ public class DTOMapper {
                 stockOperator.getId(),
                 stockOperator.getUsername(),
                 stockOperator.getPassword(),
+                stockOperator.getSalt(),
                 stockOperator.getCompany(),
                 games
         );

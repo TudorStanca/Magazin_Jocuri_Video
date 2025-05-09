@@ -6,6 +6,7 @@ import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.*;
+import server.utils.PasswordHashing;
 import services.IServices;
 
 import java.util.Optional;
@@ -30,12 +31,12 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public ClientDTO signIn(String username, String password) throws ServerSideException {
+    public synchronized ClientDTO signIn(String username, String password) throws ServerSideException {
         Optional<ClientDTO> client = clientRepository.findByUsername(username);
 
         if (client.isEmpty()) {
             throw new ServerSideException("User not found");
-        } else if (!client.get().password().equals(password)) {
+        } else if (!PasswordHashing.isExpectedPassword(password, client.get().password(), client.get().salt())) {
             throw new ServerSideException("Wrong password");
         }
 
@@ -43,8 +44,10 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public ClientDTO signUp(String username, String password, String name, String cnp, String telephone, String address) throws ServerSideException {
-        Optional<ClientDTO> client = clientRepository.save(new Client(username, password, name, cnp, telephone, address));
+    public synchronized ClientDTO signUp(String username, String password, String name, String cnp, String telephone, String address) throws ServerSideException {
+        byte[] salt = PasswordHashing.generateSalt();
+        byte[] hash = PasswordHashing.generateHash(password, salt);
+        Optional<ClientDTO> client = clientRepository.save(new Client(username, hash, salt, name, cnp, telephone, address));
 
         if(client.isEmpty()) {
             throw new ServerSideException("User could not be created");

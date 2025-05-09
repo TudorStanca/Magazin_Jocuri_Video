@@ -19,8 +19,8 @@ public class StockOperator extends User {
 
     public StockOperator() {}
 
-    public StockOperator(String username, String password, String company) {
-        super(username, password);
+    public StockOperator(String username, byte[] password, byte[] salt, String company) {
+        super(username, password, salt);
         this.company = company;
     }
 

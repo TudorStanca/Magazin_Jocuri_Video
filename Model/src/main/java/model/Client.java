@@ -34,8 +34,8 @@ public class Client extends User {
 
     public Client() {}
 
-    public Client(String username, String password, String name, String cnp, String telephoneNumber, String address) {
-        super(username, password);
+    public Client(String username, byte[] password, byte[] salt, String name, String cnp, String telephoneNumber, String address) {
+        super(username, password, salt);
         this.name = name;
         this.cnp = cnp;
         this.telephoneNumber = telephoneNumber;
