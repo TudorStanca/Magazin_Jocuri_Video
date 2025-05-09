@@ -1,2 +1,8 @@
 rootProject.name = 'Magazin_Jocuri_Video'
-include 'BusinessLogic', 'UI'
+include 'UI'
+include 'Model'
+include 'Persistence'
+include 'Networking'
+include 'Server'
+include 'Services'
+

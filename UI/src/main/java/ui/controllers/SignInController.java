@@ -8,16 +8,19 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import model.User;
-import model.exceptions.MyException;
-import service.Service;
+import model.dto.ClientDTO;
+import model.exception.ClientSideException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import services.IServices;
 import ui.MainApplication;
 import ui.View;
 import ui.utils.MessageAlert;
+import ui.utils.ObserverManager;
 
 public class SignInController implements IController {
 
-    private final Service service;
+    private final IServices service;
     private final Stage stage;
 
     @FXML
@@ -26,7 +29,9 @@ public class SignInController implements IController {
     @FXML
     private PasswordField password;
 
-    public SignInController(Service service, Stage stage) {
+    private static Logger logger = LogManager.getLogger(SignInController.class);
+
+    public SignInController(IServices service, Stage stage) {
         this.stage = stage;
         this.service = service;
     }
@@ -34,7 +39,7 @@ public class SignInController implements IController {
     @FXML
     private void handleSignIn(ActionEvent event) {
         try {
-            User user = service.signIn(username.getText(), password.getText());
+            ClientDTO user = service.signIn(username.getText(), password.getText());
 
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.CLIENT_MAIN.path));
             fxmlLoader.setControllerFactory(c -> new ClientMainPageController(service, stage, user));
@@ -46,7 +51,9 @@ public class SignInController implements IController {
             stage.setResizable(false);
             stage.setTitle(View.CLIENT_MAIN.title);
 
-        } catch (MyException ex) {
+            ObserverManager.getInstance().setCurrentController(fxmlLoader.getController());
+
+        } catch (ClientSideException ex) {
             MessageAlert.showError(stage, ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -65,6 +72,8 @@ public class SignInController implements IController {
             root.requestFocus();
             stage.setResizable(false);
             stage.setTitle(View.SIGN_UP.title);
+
+            ObserverManager.getInstance().setCurrentController(fxmlLoader.getController());
         } catch (Exception ex) {
             ex.printStackTrace();
         }

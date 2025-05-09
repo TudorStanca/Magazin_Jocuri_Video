@@ -7,14 +7,17 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import service.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import services.IServices;
 import ui.MainApplication;
 import ui.View;
 import ui.utils.MessageAlert;
+import ui.utils.ObserverManager;
 
 public class SignUpController implements IController {
 
-    private Service service;
+    private IServices service;
     private Stage stage;
 
     @FXML
@@ -23,7 +26,9 @@ public class SignUpController implements IController {
     @FXML
     private PasswordField password;
 
-    public SignUpController(Service service, Stage stage) {
+    private static Logger logger = LogManager.getLogger(SignUpController.class);
+
+    public SignUpController(IServices service, Stage stage) {
         this.service = service;
         this.stage = stage;
     }
@@ -39,6 +44,8 @@ public class SignUpController implements IController {
             root.requestFocus();
             stage.setResizable(false);
             stage.setTitle(View.SIGN_IN.title);
+
+            ObserverManager.getInstance().setCurrentController(fxmlLoader.getController());
         } catch (Exception e) {
             e.printStackTrace();
         }
