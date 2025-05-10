@@ -1,8 +1,10 @@
 package server;
 
 import model.Client;
-import model.SignInType;
+import model.UserType;
+import model.dto.AdminDTO;
 import model.dto.ClientDTO;
+import model.dto.StockOperatorDTO;
 import model.dto.UserDTO;
 import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +13,9 @@ import repository.interfaces.*;
 import server.utils.PasswordHashing;
 import services.IServices;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ServerService implements IServices {
@@ -35,9 +40,9 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public synchronized UserDTO signIn(String username, String password, SignInType signInType) throws ServerSideException {
+    public synchronized UserDTO signIn(String username, String password, UserType userType) throws ServerSideException {
         Optional<UserDTO> user;
-        switch (signInType) {
+        switch (userType) {
             case Client -> user = clientRepository.findByUsername(username).map(c -> (UserDTO) c);
             case StockOperator -> user = stockOperatorRepository.findByUsername(username).map(c -> (UserDTO) c);
             case Admin -> user = adminRepository.findByUsername(username).map(c -> (UserDTO) c);
@@ -64,6 +69,15 @@ public class ServerService implements IServices {
         }
 
         return client.get();
+    }
+
+    @Override
+    public Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> getAllUsers() {
+        Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> users = new HashMap<>();
+        users.put(ClientDTO.class, clientRepository.findAll());
+        users.put(StockOperatorDTO.class, stockOperatorRepository.findAll());
+        users.put(AdminDTO.class, adminRepository.findAll());
+        return users;
     }
 
     @Override

@@ -10,11 +10,10 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import model.SignInType;
+import model.UserType;
 import model.dto.AdminDTO;
 import model.dto.ClientDTO;
 import model.dto.StockOperatorDTO;
-import model.dto.UserDTO;
 import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,20 +76,20 @@ public class SignInController implements IController {
             String password = this.password.getText();
             if(loginToggleGroup.getSelectedToggle() != null) {
                 if(loginToggleGroup.getSelectedToggle() == stockOperator) {
-                    var user = service.signIn(username, password, SignInType.StockOperator);
+                    var user = service.signIn(username, password, UserType.StockOperator);
 
                     fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.STOCK_OPERATOR_MAIN.path));
                     fxmlLoader.setControllerFactory(c -> new StockOperatorMainPageController(service, stage, (StockOperatorDTO) user));
                     stage.setTitle(View.STOCK_OPERATOR_MAIN.title);
                 } else {
-                    var user = service.signIn(username, password, SignInType.Admin);
+                    var user = service.signIn(username, password, UserType.Admin);
 
                     fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.ADMIN_MAIN.path));
                     fxmlLoader.setControllerFactory(c -> new AdminPageMainController(service, stage, (AdminDTO) user));
                     stage.setTitle(View.ADMIN_MAIN.title);
                 }
             } else {
-                var user = service.signIn(username, password, SignInType.Client);
+                var user = service.signIn(username, password, UserType.Client);
 
                 fxmlLoader = new FXMLLoader(MainApplication.class.getResource(View.CLIENT_MAIN.path));
                 fxmlLoader.setControllerFactory(c -> new ClientMainPageController(service, stage, (ClientDTO) user));

@@ -1,12 +1,15 @@
 package network;
 
+import com.google.protobuf.Empty;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import model.SignInType;
+import model.UserType;
+import model.dto.AdminDTO;
 import model.dto.ClientDTO;
+import model.dto.StockOperatorDTO;
 import model.dto.UserDTO;
 import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +17,10 @@ import org.apache.logging.log4j.Logger;
 import services.IObserver;
 import services.IServices;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class ClientService implements IServices {
 
@@ -73,17 +79,17 @@ public class ClientService implements IServices {
     }
 
     @Override
-    public UserDTO signIn(String username, String password, SignInType signInType) throws ClientSideException {
+    public UserDTO signIn(String username, String password, UserType userType) throws ClientSideException {
         try {
             createConnection();
             SignInRequest signInRequest = SignInRequest.newBuilder()
                     .setUsername(username)
                     .setPassword(password)
-                    .setType(SignInRequest.SignInType.valueOf(signInType.toString()))
+                    .setType(SignInRequest.SignInType.valueOf(userType.toString()))
                     .build();
             SignInResponse signInResponse = blockingStub.signIn(signInRequest);
             UserDTO user;
-            switch (signInType){
+            switch (userType){
                 case Client -> user = ProtoMappers.fromProto(signInResponse.getClient());
                 case StockOperator -> user = ProtoMappers.fromProto(signInResponse.getStockOperator());
                 case Admin -> user = ProtoMappers.fromProto(signInResponse.getAdmin());
@@ -119,6 +125,20 @@ public class ClientService implements IServices {
         } finally {
             shutdownConnection();
         }
+    }
+
+    @Override
+    public Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> getAllUsers() {
+        logger.debug("Sending request to getAllUsers");
+        GetAllUsersResponse response = blockingStub.getAllUsers(Empty.getDefaultInstance());
+        logger.debug("Received response: {}", response);
+
+        Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> users = new HashMap<>();
+        users.put(ClientDTO.class, response.getClientsList().stream().map(ProtoMappers::fromProto).toList());
+        users.put(StockOperatorDTO.class, response.getStockOperatorsList().stream().map(ProtoMappers::fromProto).toList());
+        users.put(AdminDTO.class, response.getAdminsList().stream().map(ProtoMappers::fromProto).toList());
+
+        return users;
     }
 
     @Override

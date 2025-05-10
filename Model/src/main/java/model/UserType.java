@@ -1,5 +1,5 @@
 package model;
 
-public enum SignInType {
+public enum UserType {
     Client, StockOperator, Admin
 }

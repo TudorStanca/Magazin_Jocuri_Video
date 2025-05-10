@@ -3,7 +3,7 @@ package network;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import model.SignInType;
+import model.UserType;
 import model.dto.AdminDTO;
 import model.dto.ClientDTO;
 import model.dto.StockOperatorDTO;
@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.StreamSupport;
 
 public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
 
@@ -65,7 +66,7 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     public void signIn(SignInRequest request, StreamObserver<SignInResponse> responseObserver) {
         try {
             logger.debug("Client {} attempting to log in", request);
-            SignInType type = SignInType.valueOf(request.getType().toString());
+            UserType type = UserType.valueOf(request.getType().toString());
             UserDTO user = service.signIn(request.getUsername(), request.getPassword(), type);
 
             if (loggedClients.containsKey(user.getId())) {
@@ -133,6 +134,49 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
                     .build();
             logger.debug("Client sign up: {}", response);
 
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void getAllUsers(Empty request, StreamObserver<GetAllUsersResponse> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to get all users", request);
+            var responseBuilder = GetAllUsersResponse.newBuilder();
+            var usersMap = service.getAllUsers();
+
+            if (usersMap.containsKey(ClientDTO.class)) {
+                responseBuilder.addAllClients(StreamSupport.stream(usersMap.get(ClientDTO.class).spliterator(), false)
+                        .map(ClientDTO.class::cast)
+                        .map(ProtoMappers::toProto)
+                        .toList());
+            } else {
+                throw new ServerSideException("ClientDTO not found in response");
+            }
+
+            if (usersMap.containsKey(StockOperatorDTO.class)) {
+                responseBuilder.addAllStockOperators(StreamSupport.stream(usersMap.get(StockOperatorDTO.class).spliterator(), false)
+                        .map(StockOperatorDTO.class::cast)
+                        .map(ProtoMappers::toProto)
+                        .toList());
+            } else {
+                throw new ServerSideException("StockOperatorDTO not found in response");
+            }
+
+            if (usersMap.containsKey(AdminDTO.class)) {
+                responseBuilder.addAllAdmins(StreamSupport.stream(usersMap.get(AdminDTO.class).spliterator(), false)
+                        .map(AdminDTO.class::cast)
+                        .map(ProtoMappers::toProto)
+                        .toList());
+            } else {
+                throw new ServerSideException("AdminDTO not found in response");
+            }
+
+            var response = responseBuilder.build();
+            logger.debug("Client getting response: {}", response);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (ServerSideException ex) {
