@@ -97,9 +97,11 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
         addObserver(request.getId(), wrapObserver(request.getId(), responseObserver));
     }
 
-    private void notifyClients() {
+    private void notifyClients(Notification.NotificationType type) {
         ExecutorService executor = Executors.newFixedThreadPool(defaultThreadsNo);
-        Notification notification = Notification.newBuilder().build();
+        Notification notification = Notification.newBuilder()
+                .setType(type)
+                .build();
 
         for(Map.Entry<Long, StreamObserver<Notification>> client : loggedClients.entrySet()){
             final Long userId = client.getKey();
@@ -133,6 +135,8 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
                     .setClient(ProtoMappers.toProto(user))
                     .build();
             logger.debug("Client sign up: {}", response);
+
+            notifyClients(Notification.NotificationType.Admin);
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -178,6 +182,40 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
             var response = responseBuilder.build();
             logger.debug("Client getting response: {}", response);
             responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void addNewClient(AddNewClientRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to addNewClient", request);
+            service.addNewClient(request.getUsername(), request.getPassword(), request.getName(), request.getCnp(), request.getTelephoneNumber(), request.getAddress());
+
+            logger.debug("Client saved");
+
+            notifyClients(Notification.NotificationType.Admin);
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void addNewStockOperator(AddNewStockOperatorRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to addNewStockOperator", request);
+            service.addNewStockOperator(request.getUsername(), request.getPassword(), request.getCompany());
+
+            logger.debug("StockOperator saved");
+
+            notifyClients(Notification.NotificationType.Admin);
+
+            responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
         } catch (ServerSideException ex) {
             responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());

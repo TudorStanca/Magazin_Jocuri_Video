@@ -15,5 +15,9 @@ public interface IServices {
 
     Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> getAllUsers();
 
+    void addNewClient(String username, String password, String name, String cnp, String telephoneNumber, String address);
+
+    void addNewStockOperator(String username, String password, String company);
+
     void logout(Long id);
 }

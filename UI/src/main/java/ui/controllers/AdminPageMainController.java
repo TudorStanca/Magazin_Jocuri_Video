@@ -1,15 +1,14 @@
 package ui.controllers;
 
+import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -24,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import services.IServices;
 import ui.MainApplication;
 import ui.View;
+import ui.utils.MessageAlert;
 import ui.utils.ObserverManager;
 import ui.viewItem.AdminUsersViewItem;
 
@@ -48,6 +48,9 @@ public class AdminPageMainController implements IController {
     private PasswordField password;
 
     @FXML
+    private Button addClient, addStockOperator;
+
+    @FXML
     private TableView<AdminUsersViewItem> table;
 
     @FXML
@@ -65,6 +68,22 @@ public class AdminPageMainController implements IController {
         this.user = user;
     }
 
+    private void createInputBindings() {
+        BooleanBinding clientFieldsNotEmpty = name.textProperty().isNotEmpty()
+                .or(cnp.textProperty().isNotEmpty())
+                .or(telephoneNumber.textProperty().isNotEmpty())
+                .or(address.textProperty().isNotEmpty());
+        company.disableProperty().bind(clientFieldsNotEmpty);
+        addStockOperator.disableProperty().bind(clientFieldsNotEmpty);
+
+        BooleanBinding stockOperatorFieldsNotEmpty = company.textProperty().isNotEmpty();
+        name.disableProperty().bind(stockOperatorFieldsNotEmpty);
+        cnp.disableProperty().bind(stockOperatorFieldsNotEmpty);
+        telephoneNumber.disableProperty().bind(stockOperatorFieldsNotEmpty);
+        address.disableProperty().bind(stockOperatorFieldsNotEmpty);
+        addClient.disableProperty().bind(stockOperatorFieldsNotEmpty);
+    }
+
     @FXML
     private void initialize() {
         stage.setOnCloseRequest(event -> {
@@ -72,6 +91,8 @@ public class AdminPageMainController implements IController {
             logger.debug("Closing application");
             System.exit(0);
         });
+
+        createInputBindings();
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -83,12 +104,33 @@ public class AdminPageMainController implements IController {
 
     @FXML
     private void handleAddClient(ActionEvent event) {
+        try {
+            String username = this.username.getText().trim();
+            String password = this.password.getText().trim();
+            String name = this.name.getText().trim();
+            String cnp = this.cnp.getText().trim();
+            String telephone = this.telephoneNumber.getText().trim();
+            String address = this.address.getText().trim();
 
+            service.addNewClient(username, password, name, cnp, telephone, address);
+            MessageAlert.showMessage(stage, "Confirmation", "New client added");
+        } catch (ClientSideException e) {
+            MessageAlert.showError(stage, e.getMessage());
+        }
     }
 
     @FXML
     private void handleAddStockOperator(ActionEvent event) {
+        try {
+            String username = this.username.getText().trim();
+            String password = this.password.getText().trim();
+            String company = this.company.getText().trim();
 
+            service.addNewStockOperator(username, password, company);
+            MessageAlert.showMessage(stage, "Confirmation", "New stock operator added");
+        } catch (ClientSideException e) {
+            MessageAlert.showError(stage, e.getMessage());
+        }
     }
 
     @FXML
@@ -142,5 +184,9 @@ public class AdminPageMainController implements IController {
         } else {
             throw new ClientSideException("AdminDTO not found in response");
         }
+    }
+
+    public void updateAdminUserList() {
+        Platform.runLater(this::setAdminUserList);
     }
 }

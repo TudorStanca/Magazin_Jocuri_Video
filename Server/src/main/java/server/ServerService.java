@@ -1,6 +1,7 @@
 package server;
 
 import model.Client;
+import model.StockOperator;
 import model.UserType;
 import model.dto.AdminDTO;
 import model.dto.ClientDTO;
@@ -78,6 +79,28 @@ public class ServerService implements IServices {
         users.put(StockOperatorDTO.class, stockOperatorRepository.findAll());
         users.put(AdminDTO.class, adminRepository.findAll());
         return users;
+    }
+
+    @Override
+    public void addNewClient(String username, String password, String name, String cnp, String telephoneNumber, String address) throws ServerSideException {
+        byte[] salt = PasswordHashing.generateSalt();
+        byte[] hash = PasswordHashing.generateHash(password, salt);
+        Optional<ClientDTO> client = clientRepository.save(new Client(username, hash, salt, name, cnp, telephoneNumber, address));
+
+        if(client.isEmpty()) {
+            throw new ServerSideException("Client could not be created");
+        }
+    }
+
+    @Override
+    public void addNewStockOperator(String username, String password, String company) throws ServerSideException {
+        byte[] salt = PasswordHashing.generateSalt();
+        byte[] hash = PasswordHashing.generateHash(password, salt);
+        Optional<StockOperatorDTO> stockOperator = stockOperatorRepository.save(new StockOperator(username, hash, salt, company));
+
+        if(stockOperator.isEmpty()) {
+            throw new ServerSideException("StockOperator could not be created");
+        }
     }
 
     @Override

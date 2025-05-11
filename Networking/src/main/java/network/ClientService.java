@@ -63,7 +63,9 @@ public class ClientService implements IServices {
             @Override
             public void onNext(Notification value) {
                 logger.info("Received notification: {}", value);
-                //TODO observer
+                if (value.getType() == Notification.NotificationType.Admin) {
+                    client.notifyAdmin();
+                }
             }
 
             @Override
@@ -139,6 +141,41 @@ public class ClientService implements IServices {
         users.put(AdminDTO.class, response.getAdminsList().stream().map(ProtoMappers::fromProto).toList());
 
         return users;
+    }
+
+    @Override
+    public void addNewClient(String username, String password, String name, String cnp, String telephoneNumber, String address) throws ClientSideException {
+        try {
+            logger.debug("Sending request to addNewClient");
+            AddNewClientRequest request = AddNewClientRequest.newBuilder()
+                    .setUsername(username)
+                    .setPassword(password)
+                    .setName(name)
+                    .setCnp(cnp)
+                    .setTelephoneNumber(telephoneNumber)
+                    .setAddress(address)
+                    .build();
+
+            blockingStub.addNewClient(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void addNewStockOperator(String username, String password, String company) throws ClientSideException {
+        try {
+            logger.debug("Sending request to addNewStockOperator");
+            AddNewStockOperatorRequest request = AddNewStockOperatorRequest.newBuilder()
+                    .setUsername(username)
+                    .setPassword(password)
+                    .setCompany(company)
+                    .build();
+
+            blockingStub.addNewStockOperator(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
     }
 
     @Override
