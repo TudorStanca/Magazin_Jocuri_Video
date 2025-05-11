@@ -86,4 +86,39 @@ public class DTOMapper {
                 entity.getSalt()
         );
     }
+
+    public static Client fromDTO(ClientDTO dto) {
+        var client = new Client(
+                dto.getUsername(),
+                dto.getPassword(),
+                dto.getSalt(),
+                dto.getName(),
+                dto.getCnp(),
+                dto.getTelephoneNumber(),
+                dto.getAddress()
+        );
+        client.setId(dto.getId());
+        return client;
+    }
+
+    public static StockOperator fromDTO(StockOperatorDTO dto) {
+        var stockOperator = new StockOperator(
+                dto.getUsername(),
+                dto.getPassword(),
+                dto.getSalt(),
+                dto.getCompany()
+        );
+        stockOperator.setId(dto.getId());
+        return stockOperator;
+    }
+
+    public static Admin fromDTO(AdminDTO dto) {
+        var admin = new Admin(
+                dto.getUsername(),
+                dto.getPassword(),
+                dto.getSalt()
+        );
+        admin.setId(dto.getId());
+        return admin;
+    }
 }

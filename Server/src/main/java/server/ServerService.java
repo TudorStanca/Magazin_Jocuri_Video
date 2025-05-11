@@ -1,5 +1,6 @@
 package server;
 
+import model.Admin;
 import model.Client;
 import model.StockOperator;
 import model.UserType;
@@ -11,6 +12,7 @@ import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.*;
+import repository.utils.DTOMapper;
 import server.utils.PasswordHashing;
 import services.IServices;
 
@@ -73,7 +75,7 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> getAllUsers() {
+    public synchronized Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> getAllUsers() {
         Map<Class<? extends UserDTO>, Iterable<? extends UserDTO>> users = new HashMap<>();
         users.put(ClientDTO.class, clientRepository.findAll());
         users.put(StockOperatorDTO.class, stockOperatorRepository.findAll());
@@ -82,7 +84,7 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public void addNewClient(String username, String password, String name, String cnp, String telephoneNumber, String address) throws ServerSideException {
+    public synchronized void addNewClient(String username, String password, String name, String cnp, String telephoneNumber, String address) throws ServerSideException {
         byte[] salt = PasswordHashing.generateSalt();
         byte[] hash = PasswordHashing.generateHash(password, salt);
         Optional<ClientDTO> client = clientRepository.save(new Client(username, hash, salt, name, cnp, telephoneNumber, address));
@@ -93,7 +95,7 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public void addNewStockOperator(String username, String password, String company) throws ServerSideException {
+    public synchronized void addNewStockOperator(String username, String password, String company) throws ServerSideException {
         byte[] salt = PasswordHashing.generateSalt();
         byte[] hash = PasswordHashing.generateHash(password, salt);
         Optional<StockOperatorDTO> stockOperator = stockOperatorRepository.save(new StockOperator(username, hash, salt, company));
@@ -104,7 +106,7 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public UserDTO deleteUser(Long id, UserType type) {
+    public synchronized UserDTO deleteUser(Long id, UserType type) throws ServerSideException {
         UserDTO user;
         switch (type) {
             case Client -> user = clientRepository.delete(id).orElse(null);
@@ -113,6 +115,31 @@ public class ServerService implements IServices {
             default -> throw new ServerSideException("Invalid UserType");
         }
         return user;
+    }
+
+    @Override
+    public synchronized UserDTO updateUser(Long id, String newUsername, UserType type) throws ServerSideException {
+        switch (type) {
+            case Client -> {
+                var entity = clientRepository.findById(id).orElseThrow(() -> new ServerSideException("Client not found"));
+                var client = DTOMapper.fromDTO(entity);
+                client.setUsername(newUsername);
+                return clientRepository.update(client).orElse(null);
+            }
+            case StockOperator -> {
+                var entity = stockOperatorRepository.findById(id).orElseThrow(() -> new ServerSideException("Stock operator not found"));
+                var stockOperator = DTOMapper.fromDTO(entity);
+                stockOperator.setUsername(newUsername);
+                return stockOperatorRepository.update(stockOperator).orElse(null);
+            }
+            case Admin -> {
+                var entity = adminRepository.findById(id).orElseThrow(() -> new ServerSideException("Admin could not be found"));
+                var admin = DTOMapper.fromDTO(entity);
+                admin.setUsername(newUsername);
+                return adminRepository.update(admin).orElse(null);
+            }
+            default -> throw new ServerSideException("Invalid UserType");
+        }
     }
 
     @Override

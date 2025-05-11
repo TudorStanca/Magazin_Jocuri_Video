@@ -17,6 +17,8 @@ import ui.View;
 import ui.utils.MessageAlert;
 import ui.utils.ObserverManager;
 
+import java.util.Objects;
+
 public class ClientMainPageController implements IController {
 
     private IServices service;
@@ -45,16 +47,6 @@ public class ClientMainPageController implements IController {
         usernameLabel.setText(user.getUsername());
     }
 
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        terminateSession();
-    }
-
-    public void terminateSessionUserDeleted() {
-        Platform.runLater(this::terminateSession);
-        MessageAlert.showMessage(stage, "Session Terminated", "User has been deleted by admin");
-    }
-
     private void terminateSession() {
         try {
             service.logout(user.getId());
@@ -73,6 +65,29 @@ public class ClientMainPageController implements IController {
             stage.setOnCloseRequest(null);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        terminateSession();
+    }
+
+    public void terminateSessionUserDeleted(Long id) {
+        if(Objects.equals(user.getId(), id)) {
+            Platform.runLater(() -> {
+                terminateSession();
+                MessageAlert.showMessage(stage, "Session Terminated", "User has been deleted by admin");
+            });
+        }
+    }
+
+    public void terminateSessionUserUpdated(Long id) {
+        if(Objects.equals(user.getId(), id)) {
+            Platform.runLater(() -> {
+                terminateSession();
+                MessageAlert.showMessage(stage, "Session Terminated", "User has been updated by admin, please sign in again");
+            });
         }
     }
 }

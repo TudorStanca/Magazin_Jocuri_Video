@@ -4,5 +4,7 @@ public interface IObserver {
 
     void notifyAdmin();
 
-    void terminateSession(Long id);
+    void terminateDeleteSession(Long id);
+
+    void terminateUpdateSession(Long id);
 }

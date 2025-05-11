@@ -21,5 +21,7 @@ public interface IServices {
 
     UserDTO deleteUser(Long id, UserType type);
 
+    UserDTO updateUser(Long id, String newUsername, UserType type);
+
     void logout(Long id);
 }

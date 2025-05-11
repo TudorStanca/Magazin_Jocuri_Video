@@ -111,6 +111,7 @@ public class AdminPageMainController implements IController {
 
                 try {
                     logger.debug("Edited value: {}", newUsername);
+                    service.updateUser(userItem.getId(), userItem.getUsername(), userItem.getUserType());
                 } catch (ClientSideException e) {
                     MessageAlert.showError(stage, e.getMessage());
                     table.refresh();
@@ -118,7 +119,6 @@ public class AdminPageMainController implements IController {
             } else {
                 table.refresh();
             }
-            logger.debug(userList);
         });
     }
 

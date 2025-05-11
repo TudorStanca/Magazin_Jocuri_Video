@@ -46,7 +46,7 @@ public class ClientService implements IServices {
     public void shutdownConnection() {
         try {
             if (channel != null && !channel.isShutdown()) {
-                channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+                channel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
                 logger.debug("Client shutdown complete.");
             }
         } catch (InterruptedException e) {
@@ -65,8 +65,11 @@ public class ClientService implements IServices {
                 if (value.getType() == NotificationType.AdminNotification) {
                     client.notifyAdmin();
                 }
-                if (value.getType() == NotificationType.TerminateSessionNotification) {
-                    client.terminateSession(value.getId());
+                if (value.getType() == NotificationType.TerminateSessionDeleteNotification) {
+                    client.terminateDeleteSession(value.getId());
+                }
+                if (value.getType() == NotificationType.TerminateSessionUpdateNotification) {
+                    client.terminateUpdateSession(value.getId());
                 }
             }
 
@@ -181,7 +184,7 @@ public class ClientService implements IServices {
     }
 
     @Override
-    public UserDTO deleteUser(Long id, UserType type) {
+    public UserDTO deleteUser(Long id, UserType type) throws ClientSideException {
         try {
             logger.debug("Sending request to deleteUser");
             DeleteUserRequest request = DeleteUserRequest.newBuilder()
@@ -197,12 +200,31 @@ public class ClientService implements IServices {
     }
 
     @Override
+    public UserDTO updateUser(Long id, String newUsername, UserType type) throws ClientSideException {
+        try {
+            logger.debug("Sending request to updateUser");
+            UpdateUserRequest request = UpdateUserRequest.newBuilder()
+                    .setId(id)
+                    .setNewUsername(newUsername)
+                    .setType(network.UserType.valueOf(type.toString()))
+                    .build();
+
+            var response = blockingStub.updateUser(request);
+            return ProtoMappers.fromProto(response.getUser());
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
     public void logout(Long id) throws ClientSideException {
         try {
             LogoutRequest request = LogoutRequest.newBuilder().setId(id).build();
             blockingStub.logout(request);
         } catch (StatusRuntimeException ex) {
             throw new ClientSideException(ex.getMessage());
+        } finally {
+            shutdownConnection();
         }
     }
 }

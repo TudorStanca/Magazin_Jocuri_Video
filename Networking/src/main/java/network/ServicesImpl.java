@@ -127,9 +127,18 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
         notifyObservers(notification);
     }
 
-    private void notifyTermination(Long id) {
+    private void notifyDeleteTermination(Long id) {
         Notification notification = Notification.newBuilder()
-                .setType(NotificationType.TerminateSessionNotification)
+                .setType(NotificationType.TerminateSessionDeleteNotification)
+                .setId(id)
+                .build();
+
+        notifyObservers(notification);
+    }
+
+    private void notifyUpdateTermination(Long id) {
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.TerminateSessionUpdateNotification)
                 .setId(id)
                 .build();
 
@@ -243,10 +252,33 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
             logger.debug("User {} deleted", request.getId());
 
             notifyAdmins();
-            notifyTermination(deletedUser.getId());
+            notifyDeleteTermination(deletedUser.getId());
 
             var response = DeleteUserResponse.newBuilder()
                     .setUser(ProtoMappers.toProto(deletedUser))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void updateUser(UpdateUserRequest request, StreamObserver<UpdateUserResponse> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to update user", request);
+            var type = UserType.valueOf(request.getType().toString());
+            UserDTO updatedUser = service.updateUser(request.getId(), request.getNewUsername(), type);
+
+            logger.debug("User {} updated", request.getId());
+
+            notifyAdmins();
+            notifyUpdateTermination(updatedUser.getId());
+
+            var response = UpdateUserResponse.newBuilder()
+                    .setUser(ProtoMappers.toProto(updatedUser))
                     .build();
 
             responseObserver.onNext(response);

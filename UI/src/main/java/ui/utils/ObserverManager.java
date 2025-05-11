@@ -33,10 +33,20 @@ public class ObserverManager implements IObserver {
     }
 
     @Override
-    public void terminateSession(Long id) {
+    public void terminateDeleteSession(Long id) {
         if (currentController instanceof ClientMainPageController controller) {
-            logger.debug("Terminating session for client {}", id);
-            controller.terminateSessionUserDeleted();
+            logger.debug("Terminating delete session for client {}", id);
+            controller.terminateSessionUserDeleted(id);
         }
+        //TODO add stock controllelr
+    }
+
+    @Override
+    public void terminateUpdateSession(Long id) {
+        if (currentController instanceof ClientMainPageController controller) {
+            logger.debug("Terminating update session for client {}", id);
+            controller.terminateSessionUserUpdated(id);
+        }
+        //TODO add stock controlller
     }
 }
