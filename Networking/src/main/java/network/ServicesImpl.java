@@ -26,10 +26,11 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     private final Map<Long, StreamObserver<Notification>> loggedClients;
     private static Logger logger = LogManager.getLogger(ServicesImpl.class);
 
-    private final int defaultThreadsNo = 5;
+    private final ExecutorService executor;
 
-    public ServicesImpl(IServices service) {
+    public ServicesImpl(IServices service, ExecutorService executor) {
         this.service = service;
+        this.executor = executor;
         this.loggedClients = new ConcurrentHashMap<>();
     }
 
@@ -97,32 +98,42 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
         addObserver(request.getId(), wrapObserver(request.getId(), responseObserver));
     }
 
-    private void notifyClients(Notification.NotificationType type) {
-        ExecutorService executor = Executors.newFixedThreadPool(defaultThreadsNo);
-        Notification notification = Notification.newBuilder()
-                .setType(type)
-                .build();
-
+    private void notifyObservers(Notification notification) {
         for(Map.Entry<Long, StreamObserver<Notification>> client : loggedClients.entrySet()){
             final Long userId = client.getKey();
             final StreamObserver<Notification> observer = client.getValue();
             executor.execute(() -> {
-                try{
-                    logger.debug("Notifying client [{}] with {}", userId, notification);
+                synchronized (observer) {
                     try {
-                        observer.onNext(notification);
-                    } catch (Exception e) {
-                        logger.warn("Client disconnected, removing observer.");
-                        removeObserver(userId);
+                        logger.debug("Notifying client [{}] with {}", userId, notification);
+                        try {
+                            observer.onNext(notification);
+                        } catch (Exception e) {
+                            logger.warn("Client disconnected, removing observer.");
+                            removeObserver(userId);
+                        }
+                    } catch (ServerSideException e) {
+                        logger.error("Error notifying client [{}]", userId);
                     }
-                }
-                catch(ServerSideException e){
-                    logger.error("Error notifying client [{}]", userId);
                 }
             });
         }
+    }
 
-        executor.shutdown();
+    private void notifyAdmins() {
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.AdminNotification)
+                .build();
+        notifyObservers(notification);
+    }
+
+    private void notifyTermination(Long id) {
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.TerminateSessionNotification)
+                .setId(id)
+                .build();
+
+        notifyObservers(notification);
     }
 
     @Override
@@ -136,7 +147,7 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
                     .build();
             logger.debug("Client sign up: {}", response);
 
-            notifyClients(Notification.NotificationType.Admin);
+            notifyAdmins();
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -196,7 +207,7 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
 
             logger.debug("Client saved");
 
-            notifyClients(Notification.NotificationType.Admin);
+            notifyAdmins();
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -213,9 +224,32 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
 
             logger.debug("StockOperator saved");
 
-            notifyClients(Notification.NotificationType.Admin);
+            notifyAdmins();
 
             responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void deleteUser(DeleteUserRequest request, StreamObserver<DeleteUserResponse> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to delete user", request);
+            var type = UserType.valueOf(request.getType().toString());
+            UserDTO deletedUser = service.deleteUser(request.getId(), type);
+
+            logger.debug("User {} deleted", request.getId());
+
+            notifyAdmins();
+            notifyTermination(deletedUser.getId());
+
+            var response = DeleteUserResponse.newBuilder()
+                    .setUser(ProtoMappers.toProto(deletedUser))
+                    .build();
+
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (ServerSideException ex) {
             responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());

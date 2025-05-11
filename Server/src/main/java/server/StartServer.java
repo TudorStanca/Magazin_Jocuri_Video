@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class StartServer {
@@ -23,6 +25,8 @@ public class StartServer {
     private static int defaultPort = 55555;
 
     private static Logger logger = LogManager.getLogger(StartServer.class);
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     private static void start(Server server) throws IOException {
         server.start();
@@ -41,6 +45,15 @@ public class StartServer {
     private static void stop(Server server) throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
+        }
+
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
         }
     }
 
@@ -84,7 +97,7 @@ public class StartServer {
         logger.info("Using server port: {}", serverPort);
 
         Server server = Grpc.newServerBuilderForPort(serverPort, InsecureServerCredentials.create())
-                .addService(new ServicesImpl(service))
+                .addService(new ServicesImpl(service, executor))
                 .build();
 
         start(server);

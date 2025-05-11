@@ -55,13 +55,19 @@ public class ClientRepository implements IClientRepository {
     public Optional<ClientDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
+            ClientDTO dto = null;
             em.getTransaction().begin();
+            logger.debug("Deleting client {}", aLong);
             var entity = em.find(Client.class, aLong);
+            logger.debug("Found client {}", entity);
             if (entity != null) {
+                dto = DTOMapper.toDTO(entity);
+                System.out.println(dto);
                 em.remove(entity);
             }
+            logger.debug("Entity successfully deleted");
             em.getTransaction().commit();
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(dto);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

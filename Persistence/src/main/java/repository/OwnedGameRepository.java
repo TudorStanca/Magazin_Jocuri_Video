@@ -55,13 +55,15 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
     public Optional<OwnedGameDTO> delete(OwnedGameId ownedGameId) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
+            OwnedGameDTO dto = null;
             em.getTransaction().begin();
             var entity = em.find(OwnedGame.class, ownedGameId);
             if (entity != null) {
+                dto = DTOMapper.toDTO(entity);
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(dto);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

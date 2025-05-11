@@ -56,13 +56,15 @@ public class CartRepository implements ICartRepository {
     public Optional<CartDTO> delete(CartId cartId) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
+            CartDTO dto = null;
             em.getTransaction().begin();
             var entity = em.find(Cart.class, cartId);
             if (entity != null) {
+                dto = DTOMapper.toDTO(entity);
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(dto);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

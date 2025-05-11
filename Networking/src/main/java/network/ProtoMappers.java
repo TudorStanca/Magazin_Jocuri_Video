@@ -96,6 +96,13 @@ public class ProtoMappers {
                 .build();
     }
 
+    public static UserProto toProto(UserDTO user) {
+        return UserProto.newBuilder()
+                .setId(user.getId())
+                .setUsername(user.getUsername())
+                .build();
+    }
+
     public static ClientDTO fromProto(ClientProto proto) {
         return new ClientDTO(
                 proto.getId(),
@@ -157,6 +164,15 @@ public class ProtoMappers {
 
     public static AdminDTO fromProto(AdminProto proto) {
         return new AdminDTO(
+                proto.getId(),
+                proto.getUsername(),
+                new byte[]{},
+                new byte[]{}
+        );
+    }
+
+    public static UserDTO fromProto(UserProto proto) {
+        return new UserDTO(
                 proto.getId(),
                 proto.getUsername(),
                 new byte[]{},

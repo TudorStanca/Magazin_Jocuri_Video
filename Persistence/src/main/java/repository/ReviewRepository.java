@@ -55,13 +55,15 @@ public class ReviewRepository implements IReviewRepository {
     public Optional<ReviewDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
+            ReviewDTO dto = null;
             em.getTransaction().begin();
             var entity = em.find(Review.class, aLong);
             if (entity != null) {
+                dto = DTOMapper.toDTO(entity);
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(dto);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

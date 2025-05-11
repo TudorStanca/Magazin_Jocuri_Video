@@ -1,5 +1,6 @@
 package ui.controllers;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import services.IServices;
 import ui.MainApplication;
 import ui.View;
+import ui.utils.MessageAlert;
 import ui.utils.ObserverManager;
 
 public class ClientMainPageController implements IController {
@@ -45,6 +47,15 @@ public class ClientMainPageController implements IController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
+        terminateSession();
+    }
+
+    public void terminateSessionUserDeleted() {
+        Platform.runLater(this::terminateSession);
+        MessageAlert.showMessage(stage, "Session Terminated", "User has been deleted by admin");
+    }
+
+    private void terminateSession() {
         try {
             service.logout(user.getId());
 

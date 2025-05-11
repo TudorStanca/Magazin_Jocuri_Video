@@ -104,6 +104,18 @@ public class ServerService implements IServices {
     }
 
     @Override
+    public UserDTO deleteUser(Long id, UserType type) {
+        UserDTO user;
+        switch (type) {
+            case Client -> user = clientRepository.delete(id).orElse(null);
+            case StockOperator -> user = stockOperatorRepository.delete(id).orElse(null);
+            case Admin -> user = adminRepository.delete(id).orElse(null);
+            default -> throw new ServerSideException("Invalid UserType");
+        }
+        return user;
+    }
+
+    @Override
     public void logout(Long id) {
 
     }

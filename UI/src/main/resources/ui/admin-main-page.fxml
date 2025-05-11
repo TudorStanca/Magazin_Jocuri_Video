@@ -61,7 +61,7 @@
             </HBox>
             <HBox alignment="TOP_CENTER" prefHeight="0.0" prefWidth="300.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#handleDelete" prefWidth="123.0" text="Delete" />
+                  <Button fx:id="delete" mnemonicParsing="false" onAction="#handleDelete" prefWidth="123.0" text="Delete" />
                </children>
             </HBox>
             <HBox alignment="BOTTOM_RIGHT" prefHeight="90.0" prefWidth="300.0">

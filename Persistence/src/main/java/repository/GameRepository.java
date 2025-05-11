@@ -54,13 +54,15 @@ public class GameRepository implements IGameRepository {
     public Optional<GameDTO> delete(Long aLong) {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
+            GameDTO dto = null;
             em.getTransaction().begin();
             var entity = em.find(Game.class, aLong);
             if (entity != null) {
+                dto = DTOMapper.toDTO(entity);
                 em.remove(entity);
             }
             em.getTransaction().commit();
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(dto);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

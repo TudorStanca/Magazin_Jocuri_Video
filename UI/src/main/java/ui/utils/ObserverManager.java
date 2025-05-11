@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import services.IObserver;
 import ui.controllers.AdminPageMainController;
+import ui.controllers.ClientMainPageController;
 import ui.controllers.IController;
 
 public class ObserverManager implements IObserver {
@@ -28,6 +29,14 @@ public class ObserverManager implements IObserver {
         if (currentController instanceof AdminPageMainController controller) {
             logger.debug("Updating users table");
             controller.updateAdminUserList();
+        }
+    }
+
+    @Override
+    public void terminateSession(Long id) {
+        if (currentController instanceof ClientMainPageController controller) {
+            logger.debug("Terminating session for client {}", id);
+            controller.terminateSessionUserDeleted();
         }
     }
 }

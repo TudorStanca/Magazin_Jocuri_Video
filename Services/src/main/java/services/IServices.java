@@ -19,5 +19,7 @@ public interface IServices {
 
     void addNewStockOperator(String username, String password, String company);
 
+    UserDTO deleteUser(Long id, UserType type);
+
     void logout(Long id);
 }

@@ -2,7 +2,7 @@ package model.dto;
 
 import java.util.Arrays;
 
-public abstract class UserDTO implements RepositoryDTO {
+public class UserDTO implements RepositoryDTO {
     protected Long id;
     protected String username;
     protected byte[] password;

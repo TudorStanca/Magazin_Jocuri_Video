@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import model.User;
@@ -29,6 +30,7 @@ import ui.viewItem.AdminUsersViewItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.StreamSupport;
 
 public class AdminPageMainController implements IController {
@@ -48,7 +50,7 @@ public class AdminPageMainController implements IController {
     private PasswordField password;
 
     @FXML
-    private Button addClient, addStockOperator;
+    private Button addClient, addStockOperator, delete;
 
     @FXML
     private TableView<AdminUsersViewItem> table;
@@ -82,6 +84,42 @@ public class AdminPageMainController implements IController {
         telephoneNumber.disableProperty().bind(stockOperatorFieldsNotEmpty);
         address.disableProperty().bind(stockOperatorFieldsNotEmpty);
         addClient.disableProperty().bind(stockOperatorFieldsNotEmpty);
+
+        delete.disableProperty().bind(table.getSelectionModel().selectedItemProperty().isNull());
+    }
+
+    private void initTable() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
+        userTypeColumn.setCellValueFactory(new PropertyValueFactory<>("userType"));
+        table.setItems(userList);
+
+        table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        table.setEditable(true);
+        usernameColumn.setEditable(true);
+        idColumn.setEditable(false);
+        userTypeColumn.setEditable(false);
+
+        usernameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        usernameColumn.setOnEditCommit(event -> {
+            AdminUsersViewItem userItem = event.getRowValue();
+            String newUsername = event.getNewValue();
+
+            if (newUsername != null && !newUsername.trim().isEmpty()) {
+                userItem.setUsername(newUsername.trim());
+
+                try {
+                    logger.debug("Edited value: {}", newUsername);
+                } catch (ClientSideException e) {
+                    MessageAlert.showError(stage, e.getMessage());
+                    table.refresh();
+                }
+            } else {
+                table.refresh();
+            }
+            logger.debug(userList);
+        });
     }
 
     @FXML
@@ -93,12 +131,7 @@ public class AdminPageMainController implements IController {
         });
 
         createInputBindings();
-
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
-        userTypeColumn.setCellValueFactory(new PropertyValueFactory<>("userType"));
-        table.setItems(userList);
-
+        initTable();
         setAdminUserList();
     }
 
@@ -135,7 +168,17 @@ public class AdminPageMainController implements IController {
 
     @FXML
     private void handleDelete(ActionEvent event) {
+        AdminUsersViewItem selectedUser = table.getSelectionModel().getSelectedItem();
+        logger.debug("Selected user: {}", selectedUser);
 
+        if (selectedUser != null) {
+            if(Objects.equals(selectedUser.getId(), user.getId())) {
+                MessageAlert.showError(stage, "You cannot delete your user");
+                return;
+            }
+            service.deleteUser(selectedUser.getId(), selectedUser.getUserType());
+            table.getSelectionModel().clearSelection();
+        }
     }
 
     @FXML

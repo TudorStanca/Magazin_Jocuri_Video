@@ -20,7 +20,6 @@ import services.IServices;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class ClientService implements IServices {
 
@@ -63,8 +62,11 @@ public class ClientService implements IServices {
             @Override
             public void onNext(Notification value) {
                 logger.info("Received notification: {}", value);
-                if (value.getType() == Notification.NotificationType.Admin) {
+                if (value.getType() == NotificationType.AdminNotification) {
                     client.notifyAdmin();
+                }
+                if (value.getType() == NotificationType.TerminateSessionNotification) {
+                    client.terminateSession(value.getId());
                 }
             }
 
@@ -87,7 +89,7 @@ public class ClientService implements IServices {
             SignInRequest signInRequest = SignInRequest.newBuilder()
                     .setUsername(username)
                     .setPassword(password)
-                    .setType(SignInRequest.SignInType.valueOf(userType.toString()))
+                    .setType(network.UserType.valueOf(userType.toString()))
                     .build();
             SignInResponse signInResponse = blockingStub.signIn(signInRequest);
             UserDTO user;
@@ -173,6 +175,22 @@ public class ClientService implements IServices {
                     .build();
 
             blockingStub.addNewStockOperator(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public UserDTO deleteUser(Long id, UserType type) {
+        try {
+            logger.debug("Sending request to deleteUser");
+            DeleteUserRequest request = DeleteUserRequest.newBuilder()
+                    .setId(id)
+                    .setType(network.UserType.valueOf(type.toString()))
+                    .build();
+
+            var response = blockingStub.deleteUser(request);
+            return ProtoMappers.fromProto(response.getUser());
         } catch (StatusRuntimeException ex) {
             throw new ClientSideException(ex.getMessage());
         }
