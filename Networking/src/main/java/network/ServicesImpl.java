@@ -4,15 +4,13 @@ import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import model.UserType;
-import model.dto.AdminDTO;
-import model.dto.ClientDTO;
-import model.dto.StockOperatorDTO;
-import model.dto.UserDTO;
+import model.dto.*;
 import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import services.IServices;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -120,10 +118,28 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
         }
     }
 
+    private void notifyClients(){
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.ClientNotification)
+                .build();
+
+        notifyObservers(notification);
+    }
+
+    private void notifyStockOperators(Long id){
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.StockOperatorNotification)
+                .setId(id)
+                .build();
+
+        notifyObservers(notification);
+    }
+
     private void notifyAdmins() {
         Notification notification = Notification.newBuilder()
                 .setType(NotificationType.AdminNotification)
                 .build();
+
         notifyObservers(notification);
     }
 
@@ -279,6 +295,80 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
 
             var response = UpdateUserResponse.newBuilder()
                     .setUser(ProtoMappers.toProto(updatedUser))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void getAllGames(GetAllGamesRequest request, StreamObserver<GetAllGamesResponse> responseObserver) {
+        logger.debug("Stock operator {} attempting to getAllGames", request);
+        Iterable<GameDTO> games = service.getAllGames(request.getId());
+        GetAllGamesResponse response = GetAllGamesResponse.newBuilder()
+                .addAllGames(StreamSupport.stream(games.spliterator(), false).map(ProtoMappers::toProto).toList())
+                .build();
+
+        logger.debug("Stock operator getting response: {}", response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void addNewGame(AddNewGameRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to addNewGame", request);
+            service.addNewGame(request.getName(), request.getGenre(), request.getPlatform(), BigDecimal.valueOf(request.getPrice()), request.getIdStockOperator());
+            logger.debug("Game added");
+
+            notifyStockOperators(request.getIdStockOperator());
+            notifyClients();
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void deleteGame(DeleteGameRequest request, StreamObserver<DeleteGameResponse> responseObserver) {
+        try {
+            logger.debug("Stock operator {} attempting to delete game", request);
+            GameDTO deletedGame = service.deleteGame(request.getId());
+
+            logger.debug("Game {} deleted", request.getId());
+
+            notifyStockOperators(deletedGame.stockOperatorId());
+            notifyClients();
+
+            var response = DeleteGameResponse.newBuilder()
+                    .setGame(ProtoMappers.toProto(deletedGame))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void updateGame(UpdateGameRequest request, StreamObserver<UpdateGameResponse> responseObserver) {
+        try {
+            logger.debug("Stock operator {} attempting to update game", request);
+            GameDTO updatedGame = service.updateGame(request.getId(), request.getNewName(), request.getNewGenre(), request.getNewPlatform(), BigDecimal.valueOf(request.getNewPrice()));
+
+            logger.debug("Game {} updated", request.getId());
+
+            notifyStockOperators(updatedGame.stockOperatorId());
+            notifyClients();
+
+            var response = UpdateGameResponse.newBuilder()
+                    .setGame(ProtoMappers.toProto(updatedGame))
                     .build();
 
             responseObserver.onNext(response);

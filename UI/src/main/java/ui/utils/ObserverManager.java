@@ -6,6 +6,7 @@ import services.IObserver;
 import ui.controllers.AdminPageMainController;
 import ui.controllers.ClientMainPageController;
 import ui.controllers.IController;
+import ui.controllers.StockOperatorMainPageController;
 
 public class ObserverManager implements IObserver {
 
@@ -33,12 +34,23 @@ public class ObserverManager implements IObserver {
     }
 
     @Override
+    public void notifyStockOperators(Long id) {
+        if (currentController instanceof StockOperatorMainPageController controller) {
+            logger.debug("Updating game table");
+            controller.updateGameList(id);
+        }
+    }
+
+    @Override
     public void terminateDeleteSession(Long id) {
         if (currentController instanceof ClientMainPageController controller) {
             logger.debug("Terminating delete session for client {}", id);
             controller.terminateSessionUserDeleted(id);
         }
-        //TODO add stock controllelr
+        if (currentController instanceof StockOperatorMainPageController controller) {
+            logger.debug("Terminating delete session for client {}", id);
+            controller.terminateSessionUserDeleted(id);
+        }
     }
 
     @Override
@@ -47,6 +59,9 @@ public class ObserverManager implements IObserver {
             logger.debug("Terminating update session for client {}", id);
             controller.terminateSessionUserUpdated(id);
         }
-        //TODO add stock controlller
+        if (currentController instanceof StockOperatorMainPageController controller) {
+            logger.debug("Terminating update session for client {}", id);
+            controller.terminateSessionUserUpdated(id);
+        }
     }
 }

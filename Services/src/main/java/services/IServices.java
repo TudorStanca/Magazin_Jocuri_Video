@@ -2,8 +2,10 @@ package services;
 
 import model.UserType;
 import model.dto.ClientDTO;
+import model.dto.GameDTO;
 import model.dto.UserDTO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,14 @@ public interface IServices {
     UserDTO deleteUser(Long id, UserType type);
 
     UserDTO updateUser(Long id, String newUsername, UserType type);
+
+    Iterable<GameDTO> getAllGames(Long id);
+
+    void addNewGame(String name, String genre, String platform, BigDecimal price, Long idStockOperator);
+
+    GameDTO deleteGame(Long id);
+
+    GameDTO updateGame(Long id, String newName, String newGenre, String newPlatform, BigDecimal newPrice);
 
     void logout(Long id);
 }

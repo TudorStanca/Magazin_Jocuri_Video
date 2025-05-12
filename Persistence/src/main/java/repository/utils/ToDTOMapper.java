@@ -5,14 +5,14 @@ import model.dto.*;
 
 import java.util.List;
 
-public class DTOMapper {
+public class ToDTOMapper {
 
     public static ClientDTO toDTO(Client client) {
         List<CartDTO> carts = client.getCarts().stream()
-                .map(DTOMapper::toDTO)
+                .map(ToDTOMapper::toDTO)
                 .toList();
         List<OwnedGameDTO> ownedGames = client.getOwnedGames().stream()
-                .map(DTOMapper::toDTO)
+                .map(ToDTOMapper::toDTO)
                 .toList();
         return new ClientDTO(
                 client.getId(),
@@ -44,14 +44,18 @@ public class DTOMapper {
 
     public static GameDTO toDTO(Game game) {
         List<ReviewDTO> reviews = game.getReviews().stream()
-                .map(DTOMapper::toDTO)
+                .map(ToDTOMapper::toDTO)
                 .toList();
+
+        Long operatorId = game.getStockOperator() != null ? game.getStockOperator().getId() : null;
+
         return new GameDTO(
                 game.getId(),
                 game.getName(),
                 game.getGenre(),
                 game.getPlatform(),
                 game.getPrice(),
+                operatorId,
                 reviews
         );
     }
@@ -66,7 +70,7 @@ public class DTOMapper {
 
     public static StockOperatorDTO toDTO(StockOperator stockOperator) {
         List<GameDTO> games = stockOperator.getGames().stream()
-                .map(DTOMapper::toDTO)
+                .map(ToDTOMapper::toDTO)
                 .toList();
         return new StockOperatorDTO(
                 stockOperator.getId(),
@@ -85,40 +89,5 @@ public class DTOMapper {
                 entity.getPassword(),
                 entity.getSalt()
         );
-    }
-
-    public static Client fromDTO(ClientDTO dto) {
-        var client = new Client(
-                dto.getUsername(),
-                dto.getPassword(),
-                dto.getSalt(),
-                dto.getName(),
-                dto.getCnp(),
-                dto.getTelephoneNumber(),
-                dto.getAddress()
-        );
-        client.setId(dto.getId());
-        return client;
-    }
-
-    public static StockOperator fromDTO(StockOperatorDTO dto) {
-        var stockOperator = new StockOperator(
-                dto.getUsername(),
-                dto.getPassword(),
-                dto.getSalt(),
-                dto.getCompany()
-        );
-        stockOperator.setId(dto.getId());
-        return stockOperator;
-    }
-
-    public static Admin fromDTO(AdminDTO dto) {
-        var admin = new Admin(
-                dto.getUsername(),
-                dto.getPassword(),
-                dto.getSalt()
-        );
-        admin.setId(dto.getId());
-        return admin;
     }
 }

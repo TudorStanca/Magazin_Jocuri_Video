@@ -7,16 +7,14 @@ import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import model.UserType;
-import model.dto.AdminDTO;
-import model.dto.ClientDTO;
-import model.dto.StockOperatorDTO;
-import model.dto.UserDTO;
+import model.dto.*;
 import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import services.IObserver;
 import services.IServices;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -62,6 +60,12 @@ public class ClientService implements IServices {
             @Override
             public void onNext(Notification value) {
                 logger.info("Received notification: {}", value);
+                if (value.getType() == NotificationType.ClientNotification) {
+                    //TODO
+                }
+                if (value.getType() == NotificationType.StockOperatorNotification) {
+                    client.notifyStockOperators(value.getId());
+                }
                 if (value.getType() == NotificationType.AdminNotification) {
                     client.notifyAdmin();
                 }
@@ -211,6 +215,70 @@ public class ClientService implements IServices {
 
             var response = blockingStub.updateUser(request);
             return ProtoMappers.fromProto(response.getUser());
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public Iterable<GameDTO> getAllGames(Long id) {
+        logger.debug("Sending request to getAllGames");
+        GetAllGamesRequest request = GetAllGamesRequest.newBuilder()
+                .setId(id)
+                .build();
+        GetAllGamesResponse response = blockingStub.getAllGames(request);
+        logger.debug("Received GetAllGamesResponse response: {}", response);
+
+        return response.getGamesList().stream().map(ProtoMappers::fromProto).toList();
+    }
+
+    @Override
+    public void addNewGame(String name, String genre, String platform, BigDecimal price, Long idStockOperator) throws ClientSideException {
+        try {
+            logger.debug("Sending request to addNewGame");
+            AddNewGameRequest request = AddNewGameRequest.newBuilder()
+                    .setName(name)
+                    .setGenre(genre)
+                    .setPlatform(platform)
+                    .setPrice(price.doubleValue())
+                    .setIdStockOperator(idStockOperator)
+                    .build();
+
+            blockingStub.addNewGame(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public GameDTO deleteGame(Long id) throws ClientSideException {
+        try {
+            logger.debug("Sending request to deleteGame");
+            DeleteGameRequest request = DeleteGameRequest.newBuilder()
+                    .setId(id)
+                    .build();
+
+            var response = blockingStub.deleteGame(request);
+            return ProtoMappers.fromProto(response.getGame());
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public GameDTO updateGame(Long id, String newName, String newGenre, String newPlatform, BigDecimal newPrice) throws ClientSideException {
+        try {
+            logger.debug("Sending request to updateGame");
+            UpdateGameRequest request = UpdateGameRequest.newBuilder()
+                    .setId(id)
+                    .setNewName(newName)
+                    .setNewGenre(newGenre)
+                    .setNewPlatform(newPlatform)
+                    .setNewPrice(newPrice.doubleValue())
+                    .build();
+
+            var response = blockingStub.updateGame(request);
+            return ProtoMappers.fromProto(response.getGame());
         } catch (StatusRuntimeException ex) {
             throw new ClientSideException(ex.getMessage());
         }

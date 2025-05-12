@@ -7,7 +7,7 @@ import model.dto.OwnedGameDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.IOwnedGamesRepository;
-import repository.utils.DTOMapper;
+import repository.utils.ToDTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
@@ -19,7 +19,7 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
     public Optional<OwnedGameDTO> findById(OwnedGameId ownedGameId) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var entity = em.find(OwnedGame.class, ownedGameId);
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(ToDTOMapper.toDTO(entity));
         }
     }
 
@@ -27,7 +27,7 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
     public Iterable<OwnedGameDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             return em.createQuery("select og from OwnedGame og", OwnedGame.class).getResultList().stream()
-                    .map(DTOMapper::toDTO)
+                    .map(ToDTOMapper::toDTO)
                     .toList();
         }
     }
@@ -39,7 +39,7 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-            return Optional.of(DTOMapper.toDTO(entity));
+            return Optional.of(ToDTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -59,7 +59,7 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
             em.getTransaction().begin();
             var entity = em.find(OwnedGame.class, ownedGameId);
             if (entity != null) {
-                dto = DTOMapper.toDTO(entity);
+                dto = ToDTOMapper.toDTO(entity);
                 em.remove(entity);
             }
             em.getTransaction().commit();
@@ -82,7 +82,7 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
             em.getTransaction().begin();
             var updatedEntity = em.merge(entity);
             em.getTransaction().commit();
-            return Optional.of(DTOMapper.toDTO(updatedEntity));
+            return Optional.of(ToDTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();

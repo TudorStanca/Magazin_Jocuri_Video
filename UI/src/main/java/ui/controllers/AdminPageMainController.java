@@ -168,16 +168,22 @@ public class AdminPageMainController implements IController {
 
     @FXML
     private void handleDelete(ActionEvent event) {
-        AdminUsersViewItem selectedUser = table.getSelectionModel().getSelectedItem();
-        logger.debug("Selected user: {}", selectedUser);
+        try {
 
-        if (selectedUser != null) {
-            if(Objects.equals(selectedUser.getId(), user.getId())) {
-                MessageAlert.showError(stage, "You cannot delete your user");
-                return;
+
+            AdminUsersViewItem selectedUser = table.getSelectionModel().getSelectedItem();
+            logger.debug("Selected user: {}", selectedUser);
+
+            if (selectedUser != null) {
+                if (Objects.equals(selectedUser.getId(), user.getId())) {
+                    MessageAlert.showError(stage, "You cannot delete your user");
+                    return;
+                }
+                service.deleteUser(selectedUser.getId(), selectedUser.getUserType());
+                table.getSelectionModel().clearSelection();
             }
-            service.deleteUser(selectedUser.getId(), selectedUser.getUserType());
-            table.getSelectionModel().clearSelection();
+        } catch (ClientSideException e) {
+            MessageAlert.showError(stage, e.getMessage());
         }
     }
 

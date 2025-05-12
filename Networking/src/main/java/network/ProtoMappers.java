@@ -77,6 +77,7 @@ public class ProtoMappers {
                 .setGenre(game.genre())
                 .setPlatform(game.platform())
                 .setPrice(game.price().doubleValue())
+                .setIdStockOperator(game.stockOperatorId())
                 .addAllReviews(reviews)
                 .build();
     }
@@ -139,6 +140,7 @@ public class ProtoMappers {
                 proto.getGenre(),
                 proto.getPlatform(),
                 BigDecimal.valueOf(proto.getPrice()),
+                proto.getIdStockOperator(),
                 proto.getReviewsList().stream().map(ProtoMappers::fromProto).toList()
         );
     }

@@ -1,17 +1,15 @@
 package repository;
 
 import jakarta.persistence.EntityManager;
-import model.Client;
 import model.StockOperator;
 import model.dto.StockOperatorDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.IStockOperatorRepository;
-import repository.utils.DTOMapper;
+import repository.utils.ToDTOMapper;
 import repository.utils.JPAUtils;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class StockOperatorRepository implements IStockOperatorRepository {
     private static final Logger logger = LogManager.getLogger(StockOperatorRepository.class);
@@ -20,7 +18,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     public Optional<StockOperatorDTO> findById(Long aLong) {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var entity = em.find(StockOperator.class, aLong);
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(ToDTOMapper.toDTO(entity));
         }
     }
 
@@ -28,7 +26,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
     public Iterable<StockOperatorDTO> findAll() {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             return em.createQuery("select so from StockOperator so", StockOperator.class).getResultList().stream()
-                    .map(DTOMapper::toDTO)
+                    .map(ToDTOMapper::toDTO)
                     .toList();
         }
     }
@@ -40,7 +38,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-            return Optional.of(DTOMapper.toDTO(entity));
+            return Optional.of(ToDTOMapper.toDTO(entity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -60,7 +58,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
             em.getTransaction().begin();
             var entity = em.find(StockOperator.class, aLong);
             if (entity != null) {
-                dto = DTOMapper.toDTO(entity);
+                dto = ToDTOMapper.toDTO(entity);
                 em.remove(entity);
             }
             em.getTransaction().commit();
@@ -83,7 +81,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
             em.getTransaction().begin();
             var updatedEntity = em.merge(entity);
             em.getTransaction().commit();
-            return Optional.of(DTOMapper.toDTO(updatedEntity));
+            return Optional.of(ToDTOMapper.toDTO(updatedEntity));
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -100,7 +98,7 @@ public class StockOperatorRepository implements IStockOperatorRepository {
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
             var result = em.createQuery("select so from StockOperator so where so.username = :username", StockOperator.class).setParameter("username", username).getResultList();
             var entity = result.isEmpty() ? null : result.getFirst();
-            return entity == null ? Optional.empty() : Optional.of(DTOMapper.toDTO(entity));
+            return entity == null ? Optional.empty() : Optional.of(ToDTOMapper.toDTO(entity));
         }
     }
 }

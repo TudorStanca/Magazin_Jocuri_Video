@@ -1,23 +1,18 @@
 package server;
 
-import model.Admin;
-import model.Client;
-import model.StockOperator;
-import model.UserType;
-import model.dto.AdminDTO;
-import model.dto.ClientDTO;
-import model.dto.StockOperatorDTO;
-import model.dto.UserDTO;
+import model.*;
+import model.dto.*;
 import model.exception.ServerSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import repository.interfaces.*;
-import repository.utils.DTOMapper;
+import repository.utils.ToDTOMapper;
+import server.utils.FromDTOMapper;
 import server.utils.PasswordHashing;
 import services.IServices;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -109,9 +104,9 @@ public class ServerService implements IServices {
     public synchronized UserDTO deleteUser(Long id, UserType type) throws ServerSideException {
         UserDTO user;
         switch (type) {
-            case Client -> user = clientRepository.delete(id).orElse(null);
-            case StockOperator -> user = stockOperatorRepository.delete(id).orElse(null);
-            case Admin -> user = adminRepository.delete(id).orElse(null);
+            case Client -> user = clientRepository.delete(id).orElseThrow(() -> new ServerSideException("Client cannot be deleted"));
+            case StockOperator -> user = stockOperatorRepository.delete(id).orElseThrow(() -> new ServerSideException("Stock operator cannot be deleted"));
+            case Admin -> user = adminRepository.delete(id).orElseThrow(() -> new ServerSideException("Admin cannot be deleted"));
             default -> throw new ServerSideException("Invalid UserType");
         }
         return user;
@@ -122,24 +117,62 @@ public class ServerService implements IServices {
         switch (type) {
             case Client -> {
                 var entity = clientRepository.findById(id).orElseThrow(() -> new ServerSideException("Client not found"));
-                var client = DTOMapper.fromDTO(entity);
+                var client = FromDTOMapper.fromDTO(entity);
                 client.setUsername(newUsername);
                 return clientRepository.update(client).orElse(null);
             }
             case StockOperator -> {
                 var entity = stockOperatorRepository.findById(id).orElseThrow(() -> new ServerSideException("Stock operator not found"));
-                var stockOperator = DTOMapper.fromDTO(entity);
+                var stockOperator = FromDTOMapper.fromDTO(entity);
                 stockOperator.setUsername(newUsername);
                 return stockOperatorRepository.update(stockOperator).orElse(null);
             }
             case Admin -> {
                 var entity = adminRepository.findById(id).orElseThrow(() -> new ServerSideException("Admin could not be found"));
-                var admin = DTOMapper.fromDTO(entity);
+                var admin = FromDTOMapper.fromDTO(entity);
                 admin.setUsername(newUsername);
                 return adminRepository.update(admin).orElse(null);
             }
             default -> throw new ServerSideException("Invalid UserType");
         }
+    }
+
+    @Override
+    public synchronized Iterable<GameDTO> getAllGames(Long id) {
+        return gameRepository.findByStockOperator(id);
+    }
+
+    @Override
+    public synchronized void addNewGame(String name, String genre, String platform, BigDecimal price, Long idStockOperator) throws ServerSideException {
+        Game newGame = new Game(name, genre, platform, price);
+        newGame.setStockOperator(FromDTOMapper.fromDTO(stockOperatorRepository.findById(idStockOperator).orElseThrow(() -> new ServerSideException("Stock operator not found"))));
+        Optional<GameDTO> game = gameRepository.save(newGame);
+
+        if(game.isEmpty()) {
+            throw new ServerSideException("Game could not be created");
+        }
+    }
+
+    @Override
+    public synchronized GameDTO deleteGame(Long id) throws ServerSideException {
+        Optional<GameDTO> deletedGame = gameRepository.delete(id);
+
+        if(deletedGame.isEmpty()) {
+            throw new ServerSideException("Game could not be deleted");
+        }
+
+        return deletedGame.get();
+    }
+
+    @Override
+    public synchronized GameDTO updateGame(Long id, String newName, String newGenre, String newPlatform, BigDecimal newPrice) throws ServerSideException {
+        GameDTO entity = gameRepository.findById(id).orElseThrow(() -> new ServerSideException("Game not found"));
+        Game game = FromDTOMapper.fromDTO(entity, stockOperatorRepository);
+        game.setName(newName);
+        game.setGenre(newGenre);
+        game.setPlatform(newPlatform);
+        game.setPrice(newPrice);
+        return gameRepository.update(game).orElse(null);
     }
 
     @Override
