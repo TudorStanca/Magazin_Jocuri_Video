@@ -31,22 +31,17 @@
             </VBox>
             <HBox alignment="CENTER" prefHeight="25.0" prefWidth="296.0">
                <children>
-                  <Button onAction="#handleAddGame" mnemonicParsing="false" text="Add Game" />
+                  <Button mnemonicParsing="false" onAction="#handleAddGame" text="Add Game" />
                </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="0.0" prefWidth="300.0">
                <children>
-                  <Button onAction="#handleDeleteGame" mnemonicParsing="false" text="Delete" />
+                  <Button mnemonicParsing="false" onAction="#handleDeleteGame" text="Delete" />
                </children>
             </HBox>
-            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="300.0">
+            <HBox alignment="BOTTOM_RIGHT" prefHeight="400.0" prefWidth="300.0">
                <children>
-                  <Button mnemonicParsing="false" text="Update" />
-               </children>
-            </HBox>
-            <HBox alignment="BOTTOM_RIGHT" prefHeight="206.0" prefWidth="300.0">
-               <children>
-                  <Button onAction="#handleLogout" mnemonicParsing="false" text="Logout" />
+                  <Button mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
                </children>
             </HBox>
          </children>

@@ -12,8 +12,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import model.dto.StockOperatorDTO;
 import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
@@ -65,6 +67,102 @@ public class StockOperatorMainPageController implements IController {
         table.setItems(gameList);
 
         table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        table.setEditable(true);
+        nameColumn.setEditable(true);
+        genreColumn.setEditable(true);
+        platformColumn.setEditable(true);
+        priceColumn.setEditable(true);
+
+        nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        genreColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        platformColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        StringConverter<BigDecimal> bigDecimalConverter = new StringConverter<>() {
+            @Override
+            public String toString(BigDecimal object) {
+                return object != null ? object.toString() : "";
+            }
+
+            @Override
+            public BigDecimal fromString(String string) {
+                try {
+                    return new BigDecimal(string);
+                } catch (NumberFormatException e) {
+                    return BigDecimal.ZERO;
+                }
+            }
+        };
+
+        priceColumn.setCellFactory(TextFieldTableCell.forTableColumn(bigDecimalConverter));
+
+        nameColumn.setOnEditCommit(event -> {
+            GameViewItem item = event.getRowValue();
+            String newName = event.getNewValue();
+
+            if(newName != null && !newName.trim().isEmpty()) {
+                try{
+                    logger.debug("Edited name value: {}", newName);
+                    service.updateGame(item.getId(), newName, item.getGenre(), item.getPlatform(), item.getPrice());
+                } catch (ClientSideException e) {
+                    MessageAlert.showError(stage, e.getMessage());
+                    table.refresh();
+                }
+            } else {
+                table.refresh();
+            }
+        });
+
+        genreColumn.setOnEditCommit(event -> {
+            GameViewItem item = event.getRowValue();
+            String newGenre = event.getNewValue();
+
+            if(newGenre != null && !newGenre.trim().isEmpty()) {
+                try{
+                    logger.debug("Edited genre value: {}", newGenre);
+                    service.updateGame(item.getId(), item.getName(), newGenre, item.getPlatform(), item.getPrice());
+                } catch (ClientSideException e) {
+                    MessageAlert.showError(stage, e.getMessage());
+                    table.refresh();
+                }
+            } else {
+                table.refresh();
+            }
+        });
+
+        platformColumn.setOnEditCommit(event -> {
+            GameViewItem item = event.getRowValue();
+            String newPlatform = event.getNewValue();
+
+            if(newPlatform != null && !newPlatform.trim().isEmpty()) {
+                try{
+                    logger.debug("Edited platform value: {}", newPlatform);
+                    service.updateGame(item.getId(), item.getName(), item.getGenre(), newPlatform, item.getPrice());
+                } catch (ClientSideException e) {
+                    MessageAlert.showError(stage, e.getMessage());
+                    table.refresh();
+                }
+            } else {
+                table.refresh();
+            }
+        });
+
+        priceColumn.setOnEditCommit(event -> {
+            GameViewItem item = event.getRowValue();
+            BigDecimal newPrice = event.getNewValue();
+
+            if(newPrice != null) {
+                try{
+                    logger.debug("Edited price value: {}", newPrice);
+                    service.updateGame(item.getId(), item.getName(), item.getGenre(), item.getPlatform(), newPrice);
+                } catch (ClientSideException e) {
+                    MessageAlert.showError(stage, e.getMessage());
+                    table.refresh();
+                }
+            } else {
+                table.refresh();
+            }
+        });
     }
 
     @FXML
