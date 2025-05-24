@@ -64,7 +64,8 @@ public class ToDTOMapper {
         return new ReviewDTO(
                 review.getId(),
                 review.getStars(),
-                review.getDescription()
+                review.getDescription(),
+                review.getGame().getId()
         );
     }
 

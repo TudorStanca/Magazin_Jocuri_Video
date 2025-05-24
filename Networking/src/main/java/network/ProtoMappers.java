@@ -87,6 +87,7 @@ public class ProtoMappers {
                 .setId(review.id())
                 .setStars(ReviewProto.StarRating.valueOf(review.starRating().toString()))
                 .setDescription(review.description())
+                .setIdGame(review.gameId())
                 .build();
     }
 
@@ -149,7 +150,8 @@ public class ProtoMappers {
         return new ReviewDTO(
                 proto.getId(),
                 StarRating.valueOf(proto.getStars().toString()),
-                proto.getDescription()
+                proto.getDescription(),
+                proto.getIdGame()
         );
     }
 

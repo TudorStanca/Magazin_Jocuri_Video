@@ -1,14 +1,9 @@
 package server.utils;
 
-import model.Admin;
-import model.Client;
-import model.Game;
-import model.StockOperator;
-import model.dto.AdminDTO;
-import model.dto.ClientDTO;
-import model.dto.GameDTO;
-import model.dto.StockOperatorDTO;
+import model.*;
+import model.dto.*;
 import model.exception.ServerSideException;
+import repository.interfaces.IGameRepository;
 import repository.interfaces.IStockOperatorRepository;
 
 public class FromDTOMapper {
@@ -58,5 +53,15 @@ public class FromDTOMapper {
         game.setId(dto.id());
         game.setStockOperator(fromDTO(repo.findById(dto.stockOperatorId()).orElseThrow(() -> new ServerSideException("Cannot find stock operator"))));
         return game;
+    }
+
+    public static Review fromDTO(ReviewDTO dto, IGameRepository gameRepo, IStockOperatorRepository stockRepo) {
+        var review = new Review(
+                dto.starRating(),
+                dto.description()
+        );
+        review.setId(dto.id());
+        review.setGame(fromDTO(gameRepo.findById(dto.gameId()).orElseThrow(() -> new ServerSideException("Cannot find game")), stockRepo));
+        return review;
     }
 }

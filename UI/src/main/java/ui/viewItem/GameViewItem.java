@@ -10,11 +10,17 @@ public class GameViewItem {
     private StringProperty genre;
     private StringProperty platform;
     private ObjectProperty<BigDecimal> price;
+    private ObjectProperty<BigDecimal> starRating;
     private IntegerProperty nrHours;
 
     public GameViewItem(Long id, String name, String genre, String platform, BigDecimal price, Integer nrHours) {
         this(id, name, genre, platform, price);
         this.nrHours.set(nrHours);
+    }
+
+    public GameViewItem(Long id, String name, String genre, String platform, BigDecimal price, BigDecimal starRating) {
+        this(id, name, genre, platform, price);
+        this.starRating.set(starRating);
     }
 
     public GameViewItem(Long id, String name, String genre, String platform, BigDecimal price) {
@@ -23,6 +29,7 @@ public class GameViewItem {
         this.genre = new SimpleStringProperty(genre);
         this.platform = new SimpleStringProperty(platform);
         this.price = new SimpleObjectProperty<>(price);
+        this.starRating = new SimpleObjectProperty<>(BigDecimal.ZERO);
         this.nrHours = new SimpleIntegerProperty(0);
     }
 
@@ -66,6 +73,14 @@ public class GameViewItem {
         this.price.set(price);
     }
 
+    public BigDecimal getStarRating() {
+        return starRating.get();
+    }
+
+    public void setStarRating(BigDecimal starRating) {
+        this.starRating.set(starRating);
+    }
+
     public Integer getNrHours() {
         return nrHours.get();
     }
@@ -88,6 +103,10 @@ public class GameViewItem {
 
     public ObjectProperty<BigDecimal> priceProperty() {
         return price;
+    }
+
+    public ObjectProperty<BigDecimal> starRatingProperty() {
+        return starRating;
     }
 
     public IntegerProperty nrHoursProperty() {

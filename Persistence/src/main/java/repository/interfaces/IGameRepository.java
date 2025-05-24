@@ -7,5 +7,5 @@ public interface IGameRepository extends IRepository<Long, Game, GameDTO>{
 
     Iterable<GameDTO> findByStockOperator(Long id);
 
-    Iterable<GameDTO> getAllAvailableGames();
+    Iterable<GameDTO> getAllAvailableGames(Long clientId);
 }

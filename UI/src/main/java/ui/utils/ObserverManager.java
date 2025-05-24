@@ -3,10 +3,7 @@ package ui.utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import services.IObserver;
-import ui.controllers.AdminPageMainController;
-import ui.controllers.ClientMainPageController;
-import ui.controllers.IController;
-import ui.controllers.StockOperatorMainPageController;
+import ui.controllers.*;
 
 public class ObserverManager implements IObserver {
 
@@ -47,6 +44,18 @@ public class ObserverManager implements IObserver {
         if (currentController instanceof StockOperatorMainPageController controller) {
             logger.debug("Updating game table");
             controller.updateGameList(id);
+        }
+    }
+
+    @Override
+    public void notifyClientsReview(Long id) {
+        if (currentController instanceof ClientReviewPageController controller) {
+            logger.debug("Updating clients review game list {}", id);
+            controller.updateGameList(id);
+        }
+        if(currentController instanceof ClientMainPageController controller) {
+            logger.debug("Updating review table {}", id);
+            controller.updateReviewTable(id);
         }
     }
 

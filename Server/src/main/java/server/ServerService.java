@@ -176,8 +176,8 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public Iterable<GameDTO> getAllAvailableGames() {
-        return gameRepository.getAllAvailableGames();
+    public Iterable<GameDTO> getAllAvailableGames(Long id) {
+        return gameRepository.getAllAvailableGames(id);
     }
 
     @Override
@@ -188,6 +188,17 @@ public class ServerService implements IServices {
     @Override
     public Iterable<ReviewDTO> getAllReviews(Long id) {
         return reviewRepository.getAllReviewsForGame(id);
+    }
+
+    @Override
+    public void addNewReview(StarRating stars, String description, Long idGame) throws ServerSideException {
+        Review newReview = new Review(stars, description);
+        newReview.setGame(FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Game not found")), stockOperatorRepository));
+        Optional<ReviewDTO> review = reviewRepository.save(newReview);
+
+        if(review.isEmpty()) {
+            throw new ServerSideException("Review could not be created");
+        }
     }
 
     @Override

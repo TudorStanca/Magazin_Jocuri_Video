@@ -8,6 +8,8 @@ public interface IObserver {
 
     void notifyAdmin();
 
+    void notifyClientsReview(Long id);
+
     void terminateDeleteSession(Long id);
 
     void terminateUpdateSession(Long id);

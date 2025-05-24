@@ -104,15 +104,15 @@ public class GameRepository implements IGameRepository {
     }
 
     @Override
-    public Iterable<GameDTO> getAllAvailableGames() {
+    public Iterable<GameDTO> getAllAvailableGames(Long clientId) {
         String query = """
             select g from Game g
-            left join Cart c on c.game = g
-            left join OwnedGame og on og.game = g
+            left join Cart c on c.game = g and c.client.id = :clientId
+            left join OwnedGame og on og.game = g and og.client.id = :clientId
             where c.game is null and og.game is null
         """;
         try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
-            return em.createQuery(query, Game.class).getResultList().stream()
+            return em.createQuery(query, Game.class).setParameter("clientId", clientId).getResultList().stream()
                     .map(ToDTOMapper::toDTO)
                     .toList();
         }

@@ -44,6 +44,8 @@ public class ClientMainPageController implements IController {
     private ObservableList<GameViewItem> ownedGameList = FXCollections.observableArrayList();
     private ObservableList<ReviewViewItem> reviewList = FXCollections.observableArrayList();
 
+    private Long currentSelectedGame;
+
     @FXML
     private TableView<GameViewItem> availableGamesTable, ownedGamesTable;
 
@@ -135,6 +137,7 @@ public class ClientMainPageController implements IController {
         availableGamesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 setReviewList(newSelection.getId());
+                currentSelectedGame = newSelection.getId();
                 ownedGamesTable.getSelectionModel().clearSelection();
             }
         });
@@ -142,6 +145,7 @@ public class ClientMainPageController implements IController {
         ownedGamesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 setReviewList(newSelection.getId());
+                currentSelectedGame = newSelection.getId();
                 availableGamesTable.getSelectionModel().clearSelection();
             }
         });
@@ -167,7 +171,7 @@ public class ClientMainPageController implements IController {
     }
 
     private void setAvailableGameList() {
-        availableGameList.setAll(StreamSupport.stream(service.getAllAvailableGames().spliterator(), false)
+        availableGameList.setAll(StreamSupport.stream(service.getAllAvailableGames(user.getId()).spliterator(), false)
                 .map(g -> new GameViewItem(g.id(), g.name(), g.genre(), g.platform(), g.price())).toList());
     }
 
@@ -268,6 +272,13 @@ public class ClientMainPageController implements IController {
                 terminateSession();
                 MessageAlert.showMessage(stage, "Session Terminated", "User has been updated by admin, please sign in again");
             });
+        }
+    }
+
+    public void updateReviewTable(Long id) {
+        if (Objects.equals(currentSelectedGame, id)) {
+            logger.debug("s-a ajuns aici");
+            setReviewList(id);
         }
     }
 }

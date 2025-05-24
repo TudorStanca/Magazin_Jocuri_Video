@@ -6,6 +6,7 @@ import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import model.StarRating;
 import model.UserType;
 import model.dto.*;
 import model.exception.ClientSideException;
@@ -74,6 +75,9 @@ public class ClientService implements IServices {
                 }
                 if (value.getType() == NotificationType.TerminateSessionUpdateNotification) {
                     client.terminateUpdateSession(value.getId());
+                }
+                if (value.getType() == NotificationType.ClientReviewNotification) {
+                    client.notifyClientsReview(value.getId());
                 }
             }
 
@@ -285,9 +289,10 @@ public class ClientService implements IServices {
     }
 
     @Override
-    public Iterable<GameDTO> getAllAvailableGames() {
+    public Iterable<GameDTO> getAllAvailableGames(Long id) {
         logger.debug("Sending request to getAllAvailableGames");
         GetAllGamesClientRequest request = GetAllGamesClientRequest.newBuilder()
+                .setId(id)
                 .build();
         GetAllGamesClientResponse response = blockingStub.getAllGamesClient(request);
         logger.debug("Received response: {}", response);
@@ -319,6 +324,22 @@ public class ClientService implements IServices {
         logger.debug("Received response: {}", response);
 
         return response.getReviewsList().stream().map(ProtoMappers::fromProto).toList();
+    }
+
+    @Override
+    public void addNewReview(StarRating stars, String description, Long idGame) {
+        try {
+            logger.debug("Sending request to addNewReview");
+            AddNewReviewRequest request = AddNewReviewRequest.newBuilder()
+                    .setStars(ReviewProto.StarRating.valueOf(stars.toString()))
+                    .setDescription(description)
+                    .setIdGame(idGame)
+                    .build();
+
+            blockingStub.addGameReview(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
     }
 
     @Override

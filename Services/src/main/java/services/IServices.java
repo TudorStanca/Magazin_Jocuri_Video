@@ -1,5 +1,6 @@
 package services;
 
+import model.StarRating;
 import model.UserType;
 import model.dto.*;
 
@@ -30,11 +31,13 @@ public interface IServices {
 
     GameDTO updateGame(Long id, String newName, String newGenre, String newPlatform, BigDecimal newPrice);
 
-    Iterable<GameDTO> getAllAvailableGames();
+    Iterable<GameDTO> getAllAvailableGames(Long clientId);
 
     Iterable<OwnedGameDTO> getAllOwnedGames(Long id);
 
     Iterable<ReviewDTO> getAllReviews(Long id);
+
+    void addNewReview(StarRating stars, String description, Long idGame);
 
     void logout(Long id);
 }

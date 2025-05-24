@@ -9,14 +9,14 @@
       <Button onAction="#handleBack" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Back" />
       <VBox layoutX="70.0" layoutY="249.0" prefHeight="200.0" prefWidth="400.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="40.0">
          <children>
-            <TextField maxWidth="150.0" promptText="Search Owned Games" />
-            <TableView maxWidth="375.0" prefHeight="659.0" prefWidth="300.0">
+            <TextField fx:id="search" maxWidth="150.0" promptText="Search Owned Games" />
+            <TableView fx:id="table" maxWidth="375.0" prefHeight="659.0" prefWidth="300.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="Name" />
-                <TableColumn prefWidth="75.0" text="Price" />
-                  <TableColumn prefWidth="75.0" text="Platform" />
-                  <TableColumn prefWidth="75.0" text="Price" />
-                  <TableColumn prefWidth="75.0" text="Stars" />
+                <TableColumn fx:id="name" prefWidth="75.0" text="Name" />
+                <TableColumn fx:id="genre" prefWidth="75.0" text="Price" />
+                  <TableColumn fx:id="platform" prefWidth="75.0" text="Platform" />
+                  <TableColumn fx:id="price" prefWidth="75.0" text="Price" />
+                  <TableColumn fx:id="rating" prefWidth="75.0" text="Stars" />
               </columns>
             </TableView>
          </children>
@@ -26,9 +26,9 @@
       </VBox>
       <VBox alignment="TOP_CENTER" layoutX="600.0" layoutY="2.0" prefHeight="600.0" prefWidth="300.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="50.0">
          <children>
-            <TextArea prefHeight="200.0" prefWidth="200.0" promptText="Review Text" />
-            <ComboBox prefWidth="150.0" promptText="Stars" />
-            <Button mnemonicParsing="false" text="Add Review" />
+            <TextArea fx:id="area" prefHeight="200.0" prefWidth="200.0" promptText="Review Text" />
+            <ComboBox fx:id="comboBox" prefWidth="150.0" promptText="Stars" />
+            <Button onAction="#handleAddReview" mnemonicParsing="false" text="Add Review" />
          </children></VBox>
    </children>
 </AnchorPane>

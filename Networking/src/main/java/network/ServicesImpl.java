@@ -3,6 +3,7 @@ package network;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import model.StarRating;
 import model.UserType;
 import model.dto.*;
 import model.exception.ServerSideException;
@@ -121,6 +122,15 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     private void notifyClients(){
         Notification notification = Notification.newBuilder()
                 .setType(NotificationType.ClientNotification)
+                .build();
+
+        notifyObservers(notification);
+    }
+
+    private void notifyClientsReview(Long id) {
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.ClientReviewNotification)
+                .setId(id)
                 .build();
 
         notifyObservers(notification);
@@ -381,7 +391,7 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     @Override
     public void getAllGamesClient(GetAllGamesClientRequest request, StreamObserver<GetAllGamesClientResponse> responseObserver) {
         logger.debug("Client {} attempting to getAllGamesClient", request);
-        Iterable<GameDTO> games = service.getAllAvailableGames();
+        Iterable<GameDTO> games = service.getAllAvailableGames(request.getId());
 
         var response = GetAllGamesClientResponse.newBuilder()
                 .addAllGames(StreamSupport.stream(games.spliterator(), false).map(ProtoMappers::toProto).toList())
@@ -418,6 +428,23 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
         logger.debug("Sending {} response", response);
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void addGameReview(AddNewReviewRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to addGameReview", request);
+            service.addNewReview(StarRating.valueOf(request.getStars().toString()), request.getDescription(), request.getIdGame());
+            logger.debug("Review added");
+
+            notifyClients();
+            notifyClientsReview(request.getIdGame());
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
     }
 
     @Override
