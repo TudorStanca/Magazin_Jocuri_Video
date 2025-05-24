@@ -1,9 +1,6 @@
 package ui.viewItem;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 import java.math.BigDecimal;
 
@@ -13,13 +10,20 @@ public class GameViewItem {
     private StringProperty genre;
     private StringProperty platform;
     private ObjectProperty<BigDecimal> price;
+    private IntegerProperty nrHours;
+
+    public GameViewItem(Long id, String name, String genre, String platform, BigDecimal price, Integer nrHours) {
+        this(id, name, genre, platform, price);
+        this.nrHours.set(nrHours);
+    }
 
     public GameViewItem(Long id, String name, String genre, String platform, BigDecimal price) {
         this.id = id;
         this.name = new SimpleStringProperty(name);
         this.genre = new SimpleStringProperty(genre);
         this.platform = new SimpleStringProperty(platform);
-        this.price = new SimpleObjectProperty<BigDecimal>(price);
+        this.price = new SimpleObjectProperty<>(price);
+        this.nrHours = new SimpleIntegerProperty(0);
     }
 
     public Long getId() {
@@ -62,6 +66,14 @@ public class GameViewItem {
         this.price.set(price);
     }
 
+    public Integer getNrHours() {
+        return nrHours.get();
+    }
+
+    public void setNrHours(Integer nrHours) {
+        this.nrHours.set(nrHours);
+    }
+
     public StringProperty nameProperty() {
         return name;
     }
@@ -76,5 +88,9 @@ public class GameViewItem {
 
     public ObjectProperty<BigDecimal> priceProperty() {
         return price;
+    }
+
+    public IntegerProperty nrHoursProperty() {
+        return nrHours;
     }
 }

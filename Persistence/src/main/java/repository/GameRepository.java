@@ -102,4 +102,19 @@ public class GameRepository implements IGameRepository {
                     .toList();
         }
     }
+
+    @Override
+    public Iterable<GameDTO> getAllAvailableGames() {
+        String query = """
+            select g from Game g
+            left join Cart c on c.game = g
+            left join OwnedGame og on og.game = g
+            where c.game is null and og.game is null
+        """;
+        try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
+            return em.createQuery(query, Game.class).getResultList().stream()
+                    .map(ToDTOMapper::toDTO)
+                    .toList();
+        }
+    }
 }

@@ -285,6 +285,43 @@ public class ClientService implements IServices {
     }
 
     @Override
+    public Iterable<GameDTO> getAllAvailableGames() {
+        logger.debug("Sending request to getAllAvailableGames");
+        GetAllGamesClientRequest request = GetAllGamesClientRequest.newBuilder()
+                .build();
+        GetAllGamesClientResponse response = blockingStub.getAllGamesClient(request);
+        logger.debug("Received response: {}", response);
+
+        return response.getGamesList().stream().map(ProtoMappers::fromProto).toList();
+    }
+
+    @Override
+    public Iterable<OwnedGameDTO> getAllOwnedGames(Long id) {
+        logger.debug("Sending request to getAllOwnedGames");
+        GetAllOwnedGamesRequest request = GetAllOwnedGamesRequest.newBuilder()
+                .setId(id)
+                .build();
+
+        GetAllOwnedGamesResponse response = blockingStub.getAllOwnedGames(request);
+        logger.debug("Received response: {}", response);
+
+        return response.getGamesList().stream().map(ProtoMappers::fromProto).toList();
+    }
+
+    @Override
+    public Iterable<ReviewDTO> getAllReviews(Long id) {
+        logger.debug("Sending request to getAllReviews");
+        GetAllReviewsRequest request = GetAllReviewsRequest.newBuilder()
+                .setId(id)
+                .build();
+
+        GetAllReviewsResponse response = blockingStub.getAllReviews(request);
+        logger.debug("Received response: {}", response);
+
+        return response.getReviewsList().stream().map(ProtoMappers::fromProto).toList();
+    }
+
+    @Override
     public void logout(Long id) throws ClientSideException {
         try {
             LogoutRequest request = LogoutRequest.newBuilder().setId(id).build();

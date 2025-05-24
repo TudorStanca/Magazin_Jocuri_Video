@@ -92,4 +92,13 @@ public class ReviewRepository implements IReviewRepository {
             em.close();
         }
     }
+
+    @Override
+    public Iterable<ReviewDTO> getAllReviewsForGame(Long gameId) {
+        try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
+            return em.createQuery("select r from Review r where r.game.id = :gameId", Review.class).setParameter("gameId", gameId).getResultList().stream()
+                    .map(ToDTOMapper::toDTO)
+                    .toList();
+        }
+    }
 }

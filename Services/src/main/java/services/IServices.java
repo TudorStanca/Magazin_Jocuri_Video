@@ -1,12 +1,9 @@
 package services;
 
 import model.UserType;
-import model.dto.ClientDTO;
-import model.dto.GameDTO;
-import model.dto.UserDTO;
+import model.dto.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 public interface IServices {
@@ -32,6 +29,12 @@ public interface IServices {
     GameDTO deleteGame(Long id);
 
     GameDTO updateGame(Long id, String newName, String newGenre, String newPlatform, BigDecimal newPrice);
+
+    Iterable<GameDTO> getAllAvailableGames();
+
+    Iterable<OwnedGameDTO> getAllOwnedGames(Long id);
+
+    Iterable<ReviewDTO> getAllReviews(Long id);
 
     void logout(Long id);
 }

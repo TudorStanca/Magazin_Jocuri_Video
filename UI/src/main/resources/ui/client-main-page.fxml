@@ -7,28 +7,28 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.ClientMainPageController">
    <children>
       <Button layoutX="423.0" layoutY="561.0" mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
-      <Label layoutX="435.0" layoutY="32.0" text="Client" />
+      <Label fx:id="usernameLabel" layoutX="435.0" layoutY="32.0" text="Client" />
       <VBox layoutX="14.0" layoutY="11.0" prefHeight="600.0" prefWidth="400.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <VBox prefHeight="300.0" prefWidth="350.0" spacing="10.0">
                <children>
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label fx:id="usernameLabel" text="Owned games" />
+                        <Label text="Owned games" />
                      </children>
                   </HBox>
-                  <TextField maxWidth="150.0" promptText="Search Owned Games" />
+                  <TextField fx:id="searchOwnedGames" maxWidth="150.0" promptText="Search Owned Games" />
                   <HBox prefHeight="399.0" prefWidth="207.0" spacing="10.0">
                      <children>
-                        <TableView prefHeight="200.0" prefWidth="300.0">
+                        <TableView fx:id="ownedGamesTable" prefHeight="200.0" prefWidth="300.0">
                           <columns>
-                            <TableColumn prefWidth="75.0" text="Name" />
-                            <TableColumn prefWidth="75.0" text="Genre" />
-                              <TableColumn prefWidth="75.0" text="Platform" />
-                              <TableColumn prefWidth="75.0" text="Price" />
+                            <TableColumn fx:id="ownedGameName" prefWidth="75.0" text="Name" />
+                            <TableColumn fx:id="ownedGameGenre" prefWidth="75.0" text="Genre" />
+                              <TableColumn fx:id="ownedGamePlatform" prefWidth="75.0" text="Platform" />
+                              <TableColumn fx:id="ownedGamePrice" prefWidth="75.0" text="Nr. Hours" />
                           </columns>
                         </TableView>
-                        <Button maxWidth="66.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="66.0" text="Review" />
+                        <Button onAction="#handleReview" maxWidth="66.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="66.0" text="Review" />
                      </children>
                   </HBox>
                </children>
@@ -40,10 +40,10 @@
                         <Label prefHeight="17.0" text="Reviews" />
                      </children>
                   </HBox>
-                  <TableView maxWidth="300.0" prefHeight="428.0" prefWidth="300.0">
+                  <TableView fx:id="reviewTable" maxWidth="300.0" prefHeight="428.0" prefWidth="300.0">
                     <columns>
-                      <TableColumn prefWidth="75.0" text="Stars" />
-                      <TableColumn prefWidth="225.0" text="Description" />
+                      <TableColumn fx:id="reviewStars" prefWidth="75.0" text="Stars" />
+                      <TableColumn fx:id="reviewDescription" prefWidth="225.0" text="Description" />
                     </columns>
                   </TableView>
                </children>
@@ -62,16 +62,16 @@
                   <Label text="Available games" />
                </children>
             </HBox>
-            <TextField maxWidth="150.0" promptText="Search Available Games" />
+            <TextField fx:id="searchAvailableGames" maxWidth="150.0" promptText="Search Available Games" />
             <HBox alignment="TOP_RIGHT" prefHeight="610.0" prefWidth="385.0" spacing="10.0">
                <children>
-                  <Button mnemonicParsing="false" prefWidth="66.0" text="Buy" />
-                  <TableView prefHeight="405.0" prefWidth="300.0">
+                  <Button onAction="#handleBuy" mnemonicParsing="false" prefWidth="66.0" text="Buy" />
+                  <TableView fx:id="availableGamesTable" prefHeight="405.0" prefWidth="300.0">
                     <columns>
-                      <TableColumn prefWidth="75.0" text="Name" />
-                      <TableColumn prefWidth="75.0" text="Genre" />
-                        <TableColumn prefWidth="75.0" text="Platform" />
-                        <TableColumn prefWidth="75.0" text="Price" />
+                      <TableColumn fx:id="availableGameName" prefWidth="75.0" text="Name" />
+                      <TableColumn fx:id="availableGameGenre" prefWidth="75.0" text="Genre" />
+                        <TableColumn fx:id="availableGamePlatform" prefWidth="75.0" text="Platform" />
+                        <TableColumn fx:id="availableGamePrice" prefWidth="75.0" text="Price" />
                     </columns>
                   </TableView>
                </children>

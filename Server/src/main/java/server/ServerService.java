@@ -176,6 +176,21 @@ public class ServerService implements IServices {
     }
 
     @Override
+    public Iterable<GameDTO> getAllAvailableGames() {
+        return gameRepository.getAllAvailableGames();
+    }
+
+    @Override
+    public Iterable<OwnedGameDTO> getAllOwnedGames(Long id) {
+        return ownedGamesRepository.findAllOwnedGamesForClient(id);
+    }
+
+    @Override
+    public Iterable<ReviewDTO> getAllReviews(Long id) {
+        return reviewRepository.getAllReviewsForGame(id);
+    }
+
+    @Override
     public void logout(Long id) {
 
     }

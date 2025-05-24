@@ -379,6 +379,48 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     }
 
     @Override
+    public void getAllGamesClient(GetAllGamesClientRequest request, StreamObserver<GetAllGamesClientResponse> responseObserver) {
+        logger.debug("Client {} attempting to getAllGamesClient", request);
+        Iterable<GameDTO> games = service.getAllAvailableGames();
+
+        var response = GetAllGamesClientResponse.newBuilder()
+                .addAllGames(StreamSupport.stream(games.spliterator(), false).map(ProtoMappers::toProto).toList())
+                .build();
+
+        logger.debug("Sending {} response", response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAllOwnedGames(GetAllOwnedGamesRequest request, StreamObserver<GetAllOwnedGamesResponse> responseObserver) {
+        logger.debug("Client {} attempting to getAllOwnedGames", request);
+        Iterable<OwnedGameDTO> games = service.getAllOwnedGames(request.getId());
+
+        var response = GetAllOwnedGamesResponse.newBuilder()
+                .addAllGames(StreamSupport.stream(games.spliterator(), false).map(ProtoMappers::toProto).toList())
+                .build();
+
+        logger.debug("Sending {} response", response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAllReviews(GetAllReviewsRequest request, StreamObserver<GetAllReviewsResponse> responseObserver) {
+        logger.debug("Client {} attempting to getAllReviews", request);
+        Iterable<ReviewDTO> reviews = service.getAllReviews(request.getId());
+
+        var response = GetAllReviewsResponse.newBuilder()
+                .addAllReviews(StreamSupport.stream(reviews.spliterator(), false).map(ProtoMappers::toProto).toList())
+                .build();
+
+        logger.debug("Sending {} response", response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void logout(LogoutRequest request, StreamObserver<Empty> responseObserver) {
         StreamObserver<Notification> client = removeObserver(request.getId());
 

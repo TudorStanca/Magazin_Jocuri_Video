@@ -93,4 +93,13 @@ public class OwnedGameRepository implements IOwnedGamesRepository {
             em.close();
         }
     }
+
+    @Override
+    public Iterable<OwnedGameDTO> findAllOwnedGamesForClient(Long id) {
+        try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
+            return em.createQuery("select og from OwnedGame og where og.client.id = :clientId", OwnedGame.class).setParameter("clientId", id).getResultList().stream()
+                    .map(ToDTOMapper::toDTO)
+                    .toList();
+        }
+    }
 }
