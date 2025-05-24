@@ -63,6 +63,7 @@ public class ProtoMappers {
 
     public static OwnedGameProto toProto(OwnedGameDTO ownedGame) {
         return OwnedGameProto.newBuilder()
+                .setIdClient(ownedGame.clientId())
                 .setGame(toProto(ownedGame.game()))
                 .setNrHours(ownedGame.nrHours())
                 .build();
@@ -131,6 +132,7 @@ public class ProtoMappers {
 
     public static OwnedGameDTO fromProto(OwnedGameProto proto) {
         return new OwnedGameDTO(
+                proto.getIdClient(),
                 fromProto(proto.getGame()),
                 proto.getNrHours()
         );

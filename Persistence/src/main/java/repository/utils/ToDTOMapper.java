@@ -38,6 +38,7 @@ public class ToDTOMapper {
 
     public static OwnedGameDTO toDTO(OwnedGame ownedGame) {
         return new OwnedGameDTO(
+                ownedGame.getClient().getId(),
                 toDTO(ownedGame.getGame()),
                 ownedGame.getNrHours()
         );

@@ -507,6 +507,22 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     }
 
     @Override
+    public void addGameToOwnedGames(AddGameToOwnedGamesRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to addGameToOwnedGames", request);
+            service.addGameToOwnedGames(request.getIdClient(), request.getIdGame());
+            logger.debug("Owned game added");
+
+            notifyClientsBuy();
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
     public void logout(LogoutRequest request, StreamObserver<Empty> responseObserver) {
         StreamObserver<Notification> client = removeObserver(request.getId());
 

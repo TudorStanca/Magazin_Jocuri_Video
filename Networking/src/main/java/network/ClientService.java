@@ -392,6 +392,21 @@ public class ClientService implements IServices {
     }
 
     @Override
+    public void addGameToOwnedGames(Long idClient, Long idGame) {
+        try {
+            logger.debug("Sending request to addGameToOwnedGames");
+            AddGameToOwnedGamesRequest request = AddGameToOwnedGamesRequest.newBuilder()
+                    .setIdClient(idClient)
+                    .setIdGame(idGame)
+                    .build();
+
+            blockingStub.addGameToOwnedGames(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
     public void logout(Long id) throws ClientSideException {
         try {
             LogoutRequest request = LogoutRequest.newBuilder().setId(id).build();

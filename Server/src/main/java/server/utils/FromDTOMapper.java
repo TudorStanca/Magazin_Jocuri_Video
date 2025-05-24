@@ -75,4 +75,14 @@ public class FromDTOMapper {
         cart.setId(new CartId(dto.clientId(), dto.game().id()));
         return cart;
     }
+
+    public static OwnedGame fromDTO(OwnedGameDTO dto, IClientRepository clientRepo, IGameRepository gameRepo, IStockOperatorRepository stockRepo) {
+        var ownedGame = new OwnedGame(
+                fromDTO(clientRepo.findById(dto.clientId()).orElseThrow(() -> new ServerSideException("Cannot find client"))),
+                fromDTO(dto.game(), stockRepo)
+        );
+        ownedGame.setNrHours(dto.nrHours());
+        ownedGame.setId(new OwnedGameId(dto.clientId(), dto.game().id()));
+        return ownedGame;
+    }
 }

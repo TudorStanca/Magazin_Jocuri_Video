@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import model.StarRating;
 import model.dto.ClientDTO;
 import model.dto.GameDTO;
 import model.dto.OwnedGameDTO;
@@ -236,6 +237,19 @@ public class ClientBuyPageController implements IController {
 
     @FXML
     private void handleBuy(ActionEvent event) {
+        try {
+            if (cartGameList.isEmpty()) {
+                MessageAlert.showError(stage, "No cart games available");
+                return;
+            }
 
+            for (var el : cartGameList) {
+                service.addGameToOwnedGames(user.getId(), el.getId());
+            }
+
+            MessageAlert.showMessage(stage, "Confirmation", "New owned games added");
+        } catch (ClassCastException e) {
+            MessageAlert.showError(stage, e.getMessage());
+        }
     }
 }

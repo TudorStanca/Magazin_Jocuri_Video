@@ -46,5 +46,7 @@ public interface IServices {
 
     CartDTO deleteGameFromCart(Long idClient, Long idGame);
 
+    void addGameToOwnedGames(Long idClient, Long idGame);
+
     void logout(Long id);
 }

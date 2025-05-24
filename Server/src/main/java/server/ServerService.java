@@ -210,7 +210,7 @@ public class ServerService implements IServices {
     @Override
     public synchronized void addGameToCart(Long idClient, Long idGame, Instant date) throws ServerSideException {
         Client client = FromDTOMapper.fromDTO(clientRepository.findById(idClient).orElseThrow(() -> new ServerSideException("Client not found")));
-        Game game = FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Client not found")), stockOperatorRepository);
+        Game game = FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Game not found")), stockOperatorRepository);
 
         Cart newCart = new Cart(client, game, date);
         newCart.setId(new CartId(client.getId(), game.getId()));
@@ -230,6 +230,22 @@ public class ServerService implements IServices {
         }
 
         return deletedCart.get();
+    }
+
+    @Override
+    public synchronized void addGameToOwnedGames(Long idClient, Long idGame) throws ServerSideException {
+        Client client = FromDTOMapper.fromDTO(clientRepository.findById(idClient).orElseThrow(() -> new ServerSideException("Client not found")));
+        Game game = FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Game not found")), stockOperatorRepository);
+
+        OwnedGame newOwnedGame = new OwnedGame(client, game);
+        newOwnedGame.setId(new OwnedGameId(idClient, game.getId()));
+        newOwnedGame.setNrHours(0);
+        Optional<OwnedGameDTO> ownedGame = ownedGamesRepository.save(newOwnedGame);
+        deleteGameFromCart(idClient, idGame);
+
+        if(ownedGame.isEmpty()) {
+            throw new ServerSideException("Owned game could not be created");
+        }
     }
 
     @Override
