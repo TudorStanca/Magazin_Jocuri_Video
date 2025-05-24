@@ -347,7 +347,20 @@ public class ClientService implements IServices {
     }
 
     @Override
-    public void addGameToCart(Long idClient, Long idGame, Instant date) {
+    public Iterable<CartDTO> getAllGamesInCart(Long idClient) {
+        logger.debug("Sending request to getAllGamesInCart");
+        GetAllCartGamesRequest request = GetAllCartGamesRequest.newBuilder()
+                .setId(idClient)
+                .build();
+
+        GetAllCartGamesResponse response = blockingStub.getAllCartGames(request);
+        logger.debug("Received response: {}", response);
+
+        return response.getCartsList().stream().map(ProtoMappers::fromProto).toList();
+    }
+
+    @Override
+    public void addGameToCart(Long idClient, Long idGame, Instant date) throws ClientSideException {
         try {
             logger.debug("Sending request to addGameToCart");
             AddGameToCartRequest request = AddGameToCartRequest.newBuilder()
@@ -357,6 +370,22 @@ public class ClientService implements IServices {
                     .build();
 
             blockingStub.addGameToCart(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public CartDTO deleteGameFromCart(Long idClient, Long idGame) throws ClientSideException {
+        try {
+            logger.debug("Sending request to deleteGameFromCart");
+            DeleteGameFromCartRequest request = DeleteGameFromCartRequest.newBuilder()
+                    .setIdClient(idClient)
+                    .setIdGame(idGame)
+                    .build();
+
+            var response = blockingStub.deleteGameFromCart(request);
+            return ProtoMappers.fromProto(response.getCart());
         } catch (StatusRuntimeException ex) {
             throw new ClientSideException(ex.getMessage());
         }

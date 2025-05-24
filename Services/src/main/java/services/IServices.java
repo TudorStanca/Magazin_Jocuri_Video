@@ -40,7 +40,11 @@ public interface IServices {
 
     void addNewReview(StarRating stars, String description, Long idGame);
 
+    Iterable<CartDTO> getAllGamesInCart(Long idClient);
+
     void addGameToCart(Long idClient, Long idGame, Instant date);
+
+    CartDTO deleteGameFromCart(Long idClient, Long idGame);
 
     void logout(Long id);
 }

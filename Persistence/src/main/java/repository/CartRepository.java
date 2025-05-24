@@ -99,4 +99,13 @@ public class CartRepository implements ICartRepository {
             em.close();
         }
     }
+
+    @Override
+    public Iterable<CartDTO> getAllCartGames(Long clientId) {
+        try (EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager()) {
+            return em.createQuery("select c from Cart c where c.client.id = :clientId", Cart.class).setParameter("clientId", clientId).getResultList().stream()
+                    .map(ToDTOMapper::toDTO)
+                    .toList();
+        }
+    }
 }

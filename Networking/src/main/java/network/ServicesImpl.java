@@ -456,6 +456,20 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
     }
 
     @Override
+    public void getAllCartGames(GetAllCartGamesRequest request, StreamObserver<GetAllCartGamesResponse> responseObserver) {
+        logger.debug("Client {} attempting to getAllCartGames", request);
+        Iterable<CartDTO> cart = service.getAllGamesInCart(request.getId());
+
+        var response = GetAllCartGamesResponse.newBuilder()
+                .addAllCarts(StreamSupport.stream(cart.spliterator(), false).map(ProtoMappers::toProto).toList())
+                .build();
+
+        logger.debug("Sending {} response", response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void addGameToCart(AddGameToCartRequest request, StreamObserver<Empty> responseObserver) {
         try {
             logger.debug("Client {} attempting to addGameToCart", request);
@@ -465,6 +479,27 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
             notifyClientsBuy();
 
             responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void deleteGameFromCart(DeleteGameFromCartRequest request, StreamObserver<DeleteGameFromCartResponse> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to delete game from cart", request);
+            CartDTO deletedCart = service.deleteGameFromCart(request.getIdClient(), request.getIdGame());
+
+            logger.debug("Game from cart {} deleted", deletedCart);
+
+            notifyClientsBuy();
+
+            var response = DeleteGameFromCartResponse.newBuilder()
+                    .setCart(ProtoMappers.toProto(deletedCart))
+                    .build();
+
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (ServerSideException ex) {
             responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());

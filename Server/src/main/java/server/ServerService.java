@@ -177,22 +177,22 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public Iterable<GameDTO> getAllAvailableGames(Long id) {
+    public synchronized Iterable<GameDTO> getAllAvailableGames(Long id) {
         return gameRepository.getAllAvailableGames(id);
     }
 
     @Override
-    public Iterable<OwnedGameDTO> getAllOwnedGames(Long id) {
+    public synchronized Iterable<OwnedGameDTO> getAllOwnedGames(Long id) {
         return ownedGamesRepository.findAllOwnedGamesForClient(id);
     }
 
     @Override
-    public Iterable<ReviewDTO> getAllReviews(Long id) {
+    public synchronized Iterable<ReviewDTO> getAllReviews(Long id) {
         return reviewRepository.getAllReviewsForGame(id);
     }
 
     @Override
-    public void addNewReview(StarRating stars, String description, Long idGame) throws ServerSideException {
+    public synchronized void addNewReview(StarRating stars, String description, Long idGame) throws ServerSideException {
         Review newReview = new Review(stars, description);
         newReview.setGame(FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Game not found")), stockOperatorRepository));
         Optional<ReviewDTO> review = reviewRepository.save(newReview);
@@ -203,7 +203,12 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public void addGameToCart(Long idClient, Long idGame, Instant date) {
+    public synchronized Iterable<CartDTO> getAllGamesInCart(Long idClient) {
+        return cartRepository.getAllCartGames(idClient);
+    }
+
+    @Override
+    public synchronized void addGameToCart(Long idClient, Long idGame, Instant date) throws ServerSideException {
         Client client = FromDTOMapper.fromDTO(clientRepository.findById(idClient).orElseThrow(() -> new ServerSideException("Client not found")));
         Game game = FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Client not found")), stockOperatorRepository);
 
@@ -217,7 +222,18 @@ public class ServerService implements IServices {
     }
 
     @Override
-    public void logout(Long id) {
+    public synchronized CartDTO deleteGameFromCart(Long idClient, Long idGame) throws ServerSideException {
+        Optional<CartDTO> deletedCart = cartRepository.delete(new CartId(idClient, idGame));
+
+        if(deletedCart.isEmpty()) {
+            throw new ServerSideException("Game could not be deleted");
+        }
+
+        return deletedCart.get();
+    }
+
+    @Override
+    public synchronized void logout(Long id) {
 
     }
 }

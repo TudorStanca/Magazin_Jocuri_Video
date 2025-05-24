@@ -4,9 +4,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:controller="ui.controllers.ClientBuyPageController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.ClientBuyPageController">
    <children>
-      <Button onAction="#handleBack" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Back" />
+      <Button layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleBack" text="Back" />
       <VBox alignment="TOP_CENTER" layoutX="687.0" layoutY="157.0" prefHeight="200.0" prefWidth="400.0" spacing="10.0" AnchorPane.bottomAnchor="100.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="57.0">
          <children>
             <Label text="Cart" />
@@ -46,14 +46,7 @@
             <Insets bottom="15.0" left="15.0" right="15.0" top="10.0" />
          </padding>
       </VBox>
-      <HBox alignment="BOTTOM_RIGHT" layoutX="686.0" layoutY="538.0" prefHeight="48.0" prefWidth="200.0" spacing="100.0">
-         <children>
-            <Label fx:id="totalPrice" prefHeight="25.0" text="Total price" />
-            <Button onAction="#handleBuy" mnemonicParsing="false" text="Buy" />
-         </children>
-         <padding>
-            <Insets bottom="5.0" right="5.0" />
-         </padding>
-      </HBox>
+      <Label fx:id="totalPrice" layoutX="500.0" layoutY="564.0" prefHeight="25.0" text="Total price" />
+      <Button layoutX="850.0" layoutY="564.0" mnemonicParsing="false" onAction="#handleBuy" text="Buy" />
    </children>
 </AnchorPane>

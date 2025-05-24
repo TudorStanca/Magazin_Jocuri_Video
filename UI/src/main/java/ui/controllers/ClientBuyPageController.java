@@ -1,5 +1,6 @@
 package ui.controllers;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -14,11 +15,13 @@ import model.dto.ClientDTO;
 import model.dto.GameDTO;
 import model.dto.OwnedGameDTO;
 import model.dto.ReviewDTO;
+import model.exception.ClientSideException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import services.IServices;
 import ui.MainApplication;
 import ui.View;
+import ui.utils.MessageAlert;
 import ui.utils.ObserverManager;
 import ui.viewItem.GameViewItem;
 
@@ -81,7 +84,11 @@ public class ClientBuyPageController implements IController {
                 addButton.setMaxWidth(Double.MAX_VALUE);
                 addButton.setOnAction(e -> {
                     GameViewItem game = getTableView().getItems().get(getIndex());
-                    service.addGameToCart(user.getId(), game.getId(), Instant.now());
+                    try {
+                        service.addGameToCart(user.getId(), game.getId(), Instant.now());
+                    } catch (ClientSideException ex) {
+                        MessageAlert.showError(stage, ex.getMessage());
+                    }
                 });
             }
 
@@ -114,10 +121,46 @@ public class ClientBuyPageController implements IController {
         availableGames.setItems(filteredGames);
     }
 
+    private void initCartGamesTable() {
+        cartGameName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        cartGameGenre.setCellValueFactory(new PropertyValueFactory<>("genre"));
+        cartGamePlatform.setCellValueFactory(new PropertyValueFactory<>("platform"));
+        cartGamePrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        deleteButtonColumn.setCellFactory(col -> new TableCell<>() {
+            private final Button deleteButton = new Button("Delete");
+            {
+                deleteButton.setMaxWidth(Double.MAX_VALUE);
+                deleteButton.setOnAction(e -> {
+                    GameViewItem game = getTableView().getItems().get(getIndex());
+                    try {
+                        service.deleteGameFromCart(user.getId(), game.getId());
+                    } catch (ClientSideException ex) {
+                        MessageAlert.showError(stage, ex.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(deleteButton);
+                }
+            }
+        });
+
+        cartGames.setItems(cartGameList);
+    }
+
     @FXML
     private void initialize() {
         initAvailableGamesTable();
+        initCartGamesTable();
         setAvailableGameList();
+        setCartGameList();
     }
 
     private void setAvailableGameList() {
@@ -154,12 +197,22 @@ public class ClientBuyPageController implements IController {
                 .toList());
     }
 
+    private void setCartGameList() {
+        List<GameViewItem> list = StreamSupport.stream(service.getAllGamesInCart(user.getId()).spliterator(), false)
+                .map(c -> new GameViewItem(c.game().id(), c.game().name(), c.game().genre(), c.game().platform(), c.game().price()))
+                .toList();
+        cartGameList.setAll(list);
+        Platform.runLater(() -> {
+            totalPrice.setText("Total price: " + list.stream().map(GameViewItem::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
+        });
+    }
+
     public void updateAvailableGames() {
         setAvailableGameList();
     }
 
     public void updateCartGames() {
-        logger.debug("Am fost notificat");
+        setCartGameList();
     }
 
     @FXML
