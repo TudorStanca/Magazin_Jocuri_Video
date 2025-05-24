@@ -181,6 +181,14 @@ public class ClientMainPageController implements IController {
                 .map(r -> new ReviewViewItem(r.id(), r.starRating(), r.description())).toList());
     }
 
+    public void updateAvailableGameList() {
+        setAvailableGameList();
+    }
+
+    public void updateOwnedGameList() {
+        setOwnedGameList();
+    }
+
     @FXML
     private void handleBuy(ActionEvent event) {
         try {

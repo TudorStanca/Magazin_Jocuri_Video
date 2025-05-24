@@ -26,6 +26,15 @@ public class ObserverManager implements IObserver {
     }
 
     @Override
+    public void notifyClients() {
+        if (currentController instanceof ClientMainPageController controller) {
+            logger.debug("Updating clients game list");
+            controller.updateAvailableGameList();
+            controller.updateOwnedGameList();
+        }
+    }
+
+    @Override
     public void notifyAdmin() {
         if (currentController instanceof AdminPageMainController controller) {
             logger.debug("Updating users table");

@@ -61,7 +61,7 @@ public class ClientService implements IServices {
             public void onNext(Notification value) {
                 logger.info("Received notification: {}", value);
                 if (value.getType() == NotificationType.ClientNotification) {
-                    //TODO
+                    client.notifyClients();
                 }
                 if (value.getType() == NotificationType.StockOperatorNotification) {
                     client.notifyStockOperators(value.getId());

@@ -31,7 +31,6 @@ public class Game extends EntityId<Long> {
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "stock_operator_id")
     private StockOperator stockOperator;
 
