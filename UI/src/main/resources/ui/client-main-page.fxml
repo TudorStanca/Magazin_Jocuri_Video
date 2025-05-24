@@ -1,12 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.ClientMainPageController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.ClientMainPageController">
    <children>
-      <Button layoutX="273.0" layoutY="561.0" mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
-      <Label fx:id="usernameLabel" layoutX="14.0" layoutY="14.0" text="Label" />
-      <Label layoutX="286.0" layoutY="31.0" text="Client" />
+      <Button layoutX="423.0" layoutY="561.0" mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
+      <Label layoutX="435.0" layoutY="32.0" text="Client" />
+      <VBox layoutX="14.0" layoutY="11.0" prefHeight="600.0" prefWidth="400.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox prefHeight="300.0" prefWidth="350.0" spacing="10.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="usernameLabel" text="Owned games" />
+                     </children>
+                  </HBox>
+                  <TextField maxWidth="150.0" promptText="Search Owned Games" />
+                  <HBox prefHeight="399.0" prefWidth="207.0" spacing="10.0">
+                     <children>
+                        <TableView prefHeight="200.0" prefWidth="300.0">
+                          <columns>
+                            <TableColumn prefWidth="75.0" text="Name" />
+                            <TableColumn prefWidth="75.0" text="Genre" />
+                              <TableColumn prefWidth="75.0" text="Platform" />
+                              <TableColumn prefWidth="75.0" text="Price" />
+                          </columns>
+                        </TableView>
+                        <Button maxWidth="66.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="66.0" text="Review" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="300.0" prefWidth="300.0" spacing="5.0">
+               <children>
+                  <HBox alignment="CENTER" maxWidth="300.0" prefHeight="2.0" prefWidth="385.0">
+                     <children>
+                        <Label prefHeight="17.0" text="Reviews" />
+                     </children>
+                  </HBox>
+                  <TableView maxWidth="300.0" prefHeight="428.0" prefWidth="300.0">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="Stars" />
+                      <TableColumn prefWidth="225.0" text="Description" />
+                    </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" top="15.0" />
+         </padding></VBox>
+      <VBox alignment="TOP_RIGHT" layoutX="640.0" layoutY="144.0" prefHeight="200.0" prefWidth="400.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <padding>
+            <Insets bottom="15.0" right="15.0" top="15.0" />
+         </padding>
+         <children>
+            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="385.0">
+               <children>
+                  <Label text="Available games" />
+               </children>
+            </HBox>
+            <TextField maxWidth="150.0" promptText="Search Available Games" />
+            <HBox alignment="TOP_RIGHT" prefHeight="610.0" prefWidth="385.0" spacing="10.0">
+               <children>
+                  <Button mnemonicParsing="false" prefWidth="66.0" text="Buy" />
+                  <TableView prefHeight="405.0" prefWidth="300.0">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="Name" />
+                      <TableColumn prefWidth="75.0" text="Genre" />
+                        <TableColumn prefWidth="75.0" text="Platform" />
+                        <TableColumn prefWidth="75.0" text="Price" />
+                    </columns>
+                  </TableView>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>
