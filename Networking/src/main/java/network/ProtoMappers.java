@@ -10,14 +10,14 @@ import java.util.List;
 
 public class ProtoMappers {
 
-    private static Timestamp toProtoTimestamp(Instant instant) {
+    public static Timestamp toProtoTimestamp(Instant instant) {
         return Timestamp.newBuilder()
                 .setSeconds(instant.getEpochSecond())
                 .setNanos(instant.getNano())
                 .build();
     }
 
-    private static Instant fromProtoTimestamp(Timestamp timestamp) {
+    public static Instant fromProtoTimestamp(Timestamp timestamp) {
         return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
     }
 
@@ -55,6 +55,7 @@ public class ProtoMappers {
 
     public static CartProto toProto(CartDTO cart) {
         return CartProto.newBuilder()
+                .setIdClient(cart.clientId())
                 .setGame(toProto(cart.game()))
                 .setDate(toProtoTimestamp(cart.date()))
                 .build();
@@ -122,6 +123,7 @@ public class ProtoMappers {
 
     public static CartDTO fromProto(CartProto proto) {
         return new CartDTO(
+                proto.getIdClient(),
                 fromProto(proto.getGame()),
                 fromProtoTimestamp(proto.getDate())
         );

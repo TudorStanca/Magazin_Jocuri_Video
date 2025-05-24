@@ -60,6 +60,15 @@ public class ObserverManager implements IObserver {
     }
 
     @Override
+    public void notifyClientsBuy() {
+        if (currentController instanceof ClientBuyPageController controller) {
+            logger.debug("Updating clients buy game list");
+            controller.updateAvailableGames();
+            controller.updateCartGames();
+        }
+    }
+
+    @Override
     public void terminateDeleteSession(Long id) {
         if (currentController instanceof ClientMainPageController controller) {
             logger.debug("Terminating delete session for client {}", id);

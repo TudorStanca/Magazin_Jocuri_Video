@@ -30,6 +30,7 @@ public class ToDTOMapper {
 
     public static CartDTO toDTO(Cart cart) {
         return new CartDTO(
+                cart.getClient().getId(),
                 toDTO(cart.getGame()),
                 cart.getDate()
         );

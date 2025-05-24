@@ -3,6 +3,8 @@ package repository;
 import jakarta.persistence.EntityManager;
 import model.Cart;
 import model.CartId;
+import model.Client;
+import model.Game;
 import model.dto.CartDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +39,10 @@ public class CartRepository implements ICartRepository {
         EntityManager em = JPAUtils.getEntityManagerFactory().createEntityManager();
         try {
             em.getTransaction().begin();
+            Client c = em.find(Client.class, entity.getClient().getId());
+            Game g = em.find(Game.class, entity.getGame().getId());
+            entity.setClient(c);
+            entity.setGame(g);
             em.persist(entity);
             em.getTransaction().commit();
             return Optional.of(ToDTOMapper.toDTO(entity));

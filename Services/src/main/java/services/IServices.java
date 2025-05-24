@@ -5,6 +5,7 @@ import model.UserType;
 import model.dto.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Map;
 
 public interface IServices {
@@ -38,6 +39,8 @@ public interface IServices {
     Iterable<ReviewDTO> getAllReviews(Long id);
 
     void addNewReview(StarRating stars, String description, Long idGame);
+
+    void addGameToCart(Long idClient, Long idGame, Instant date);
 
     void logout(Long id);
 }

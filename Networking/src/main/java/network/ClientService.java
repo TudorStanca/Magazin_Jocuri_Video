@@ -16,6 +16,7 @@ import services.IObserver;
 import services.IServices;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +79,9 @@ public class ClientService implements IServices {
                 }
                 if (value.getType() == NotificationType.ClientReviewNotification) {
                     client.notifyClientsReview(value.getId());
+                }
+                if (value.getType() == NotificationType.ClientBuyNotification) {
+                    client.notifyClientsBuy();
                 }
             }
 
@@ -337,6 +341,22 @@ public class ClientService implements IServices {
                     .build();
 
             blockingStub.addGameReview(request);
+        } catch (StatusRuntimeException ex) {
+            throw new ClientSideException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void addGameToCart(Long idClient, Long idGame, Instant date) {
+        try {
+            logger.debug("Sending request to addGameToCart");
+            AddGameToCartRequest request = AddGameToCartRequest.newBuilder()
+                    .setIdClient(idClient)
+                    .setIdGame(idGame)
+                    .setDate(ProtoMappers.toProtoTimestamp(date))
+                    .build();
+
+            blockingStub.addGameToCart(request);
         } catch (StatusRuntimeException ex) {
             throw new ClientSideException(ex.getMessage());
         }

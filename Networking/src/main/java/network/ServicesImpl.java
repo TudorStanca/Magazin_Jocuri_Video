@@ -136,6 +136,14 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
         notifyObservers(notification);
     }
 
+    private void notifyClientsBuy() {
+        Notification notification = Notification.newBuilder()
+                .setType(NotificationType.ClientBuyNotification)
+                .build();
+
+        notifyObservers(notification);
+    }
+
     private void notifyStockOperators(Long id){
         Notification notification = Notification.newBuilder()
                 .setType(NotificationType.StockOperatorNotification)
@@ -439,6 +447,22 @@ public class ServicesImpl extends ServicesGrpc.ServicesImplBase {
 
             notifyClients();
             notifyClientsReview(request.getIdGame());
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (ServerSideException ex) {
+            responseObserver.onError(Status.ABORTED.withDescription(ex.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void addGameToCart(AddGameToCartRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            logger.debug("Client {} attempting to addGameToCart", request);
+            service.addGameToCart(request.getIdClient(), request.getIdGame(), ProtoMappers.fromProtoTimestamp(request.getDate()));
+            logger.debug("Cart added");
+
+            notifyClientsBuy();
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();

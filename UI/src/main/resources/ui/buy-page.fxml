@@ -10,13 +10,13 @@
       <VBox alignment="TOP_CENTER" layoutX="687.0" layoutY="157.0" prefHeight="200.0" prefWidth="400.0" spacing="10.0" AnchorPane.bottomAnchor="100.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="57.0">
          <children>
             <Label text="Cart" />
-            <TableView prefHeight="654.0" prefWidth="375.0">
+            <TableView fx:id="cartGames" prefHeight="654.0" prefWidth="375.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="Name" />
-                <TableColumn prefWidth="75.0" text="Genre" />
-                  <TableColumn prefWidth="75.0" text="Platform" />
-                  <TableColumn prefWidth="75.0" text="Price" />
-                  <TableColumn prefWidth="75.0" text="Remove" />
+                <TableColumn fx:id="cartGameName" prefWidth="75.0" text="Name" />
+                <TableColumn fx:id="cartGameGenre" prefWidth="75.0" text="Genre" />
+                  <TableColumn fx:id="cartGamePlatform" prefWidth="75.0" text="Platform" />
+                  <TableColumn fx:id="cartGamePrice" prefWidth="75.0" text="Price" />
+                  <TableColumn fx:id="deleteButtonColumn" prefWidth="75.0" text="Remove" />
               </columns>
             </TableView>
          </children>
@@ -26,19 +26,19 @@
       </VBox>
       <VBox layoutX="14.0" layoutY="40.0" prefHeight="560.0" prefWidth="480.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="40.0">
          <children>
-            <TextField maxWidth="150.0" promptText="Search Games">
+            <TextField fx:id="search" maxWidth="150.0" promptText="Search Games">
                <VBox.margin>
                   <Insets />
                </VBox.margin>
             </TextField>
-            <TableView prefHeight="550.0" prefWidth="450.0">
+            <TableView fx:id="availableGames" prefHeight="550.0" prefWidth="450.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="Name" />
-                <TableColumn prefWidth="75.0" text="Genre" />
-                  <TableColumn prefWidth="75.0" text="Platform" />
-                  <TableColumn prefWidth="75.0" text="Price" />
-                  <TableColumn prefWidth="75.0" text="Stars" />
-                  <TableColumn prefWidth="75.0" text="Add" />
+                <TableColumn fx:id="availableGameName" prefWidth="75.0" text="Name" />
+                <TableColumn fx:id="availableGameGenre" prefWidth="75.0" text="Genre" />
+                  <TableColumn fx:id="availableGamePlatform" prefWidth="75.0" text="Platform" />
+                  <TableColumn fx:id="availableGamePrice" prefWidth="75.0" text="Price" />
+                  <TableColumn fx:id="availableGameRating" prefWidth="75.0" text="Stars" />
+                  <TableColumn fx:id="addButtonColumn" prefWidth="75.0" text="Add" />
               </columns>
             </TableView>
          </children>
@@ -48,8 +48,8 @@
       </VBox>
       <HBox alignment="BOTTOM_RIGHT" layoutX="686.0" layoutY="538.0" prefHeight="48.0" prefWidth="200.0" spacing="100.0">
          <children>
-            <Label prefHeight="25.0" text="Total price" />
-            <Button mnemonicParsing="false" text="Buy" />
+            <Label fx:id="totalPrice" prefHeight="25.0" text="Total price" />
+            <Button onAction="#handleBuy" mnemonicParsing="false" text="Buy" />
          </children>
          <padding>
             <Insets bottom="5.0" right="5.0" />

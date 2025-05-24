@@ -12,6 +12,7 @@ import server.utils.PasswordHashing;
 import services.IServices;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -198,6 +199,20 @@ public class ServerService implements IServices {
 
         if(review.isEmpty()) {
             throw new ServerSideException("Review could not be created");
+        }
+    }
+
+    @Override
+    public void addGameToCart(Long idClient, Long idGame, Instant date) {
+        Client client = FromDTOMapper.fromDTO(clientRepository.findById(idClient).orElseThrow(() -> new ServerSideException("Client not found")));
+        Game game = FromDTOMapper.fromDTO(gameRepository.findById(idGame).orElseThrow(() -> new ServerSideException("Client not found")), stockOperatorRepository);
+
+        Cart newCart = new Cart(client, game, date);
+        newCart.setId(new CartId(client.getId(), game.getId()));
+        Optional<CartDTO> cart = cartRepository.save(newCart);
+
+        if(cart.isEmpty()) {
+            throw new ServerSideException("Cart could not be created");
         }
     }
 

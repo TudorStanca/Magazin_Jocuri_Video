@@ -3,6 +3,7 @@ package server.utils;
 import model.*;
 import model.dto.*;
 import model.exception.ServerSideException;
+import repository.interfaces.IClientRepository;
 import repository.interfaces.IGameRepository;
 import repository.interfaces.IStockOperatorRepository;
 
@@ -63,5 +64,15 @@ public class FromDTOMapper {
         review.setId(dto.id());
         review.setGame(fromDTO(gameRepo.findById(dto.gameId()).orElseThrow(() -> new ServerSideException("Cannot find game")), stockRepo));
         return review;
+    }
+
+    public static Cart fromDTO(CartDTO dto, IClientRepository clientRepo, IGameRepository gameRepo, IStockOperatorRepository stockRepo) {
+        var cart = new Cart(
+                fromDTO(clientRepo.findById(dto.clientId()).orElseThrow(() -> new ServerSideException("Cannot find client"))),
+                fromDTO(dto.game(), stockRepo),
+                dto.date()
+        );
+        cart.setId(new CartId(dto.clientId(), dto.game().id()));
+        return cart;
     }
 }
